@@ -1,0 +1,3 @@
+[submodule "sTest"]
+	path = sTest
+	url = https://github.com/greg-white/sTest.git
