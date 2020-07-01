@@ -42,8 +42,11 @@ int Parser::countBits(mask m) {
 }
 
 /**
- * log2 expects mask to have only 1 bit set
- * otherwise, the position (log2) of the LSB of m is returned
+ * Returns log2 of a number if it is a multiple of 2
+ *
+ * log2 expects mask to have only 1 bit set.
+ * Otherwise, the position (log2) of the LSB of m is returned,
+ * or 0 if no bits are set.
  */
 unsigned int Parser::log2(mask m) {
     for (int i=0; i < N; i++) {
@@ -51,6 +54,7 @@ unsigned int Parser::log2(mask m) {
             return i + 1;
         }
     }
+    return 0;
 }
 
 Parser::Parser(std::string s) {
@@ -62,14 +66,11 @@ mask Parser::getMaskFromInt(unsigned int i) {
 }
 
 int Parser::parse() {
-    std::cout << "Parsing this:" << this->s << std::endl;
     if (this->s.length() != N * N) {
         std::cout << "Input string has wrong length" << std::endl;
         return -1;
     }
     for (int i = 0; i < N * N; i++) {
-        //std::string c = this->s.substr(i, 1);
-        //unsolved[i] = inputCharToInt(c);
         char c = this->s[i];
         unsolved[i] = inputCharToMask(c);
     }

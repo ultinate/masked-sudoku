@@ -10,6 +10,11 @@ class SlicerInterface {
         virtual slice& getSlice(board&);
 };
 
+class HorizontalSlicer : public SlicerInterface {
+
+
+};
+
 class ReducerInterface {
     public:
         virtual bool reduceSlice(slice&) = 0;
@@ -60,7 +65,7 @@ class Visualizer {
 };
 
 int main(int argc, char **argv) {
-    std::cout << "sudoku solver, v 0.0.0" << std::endl;
+    std::cout << "sudoku solver, v 0.0.1" << std::endl;
     std::string inputString;
     std::string tmpString;
     while (std::getline(std::cin, tmpString))
@@ -71,14 +76,15 @@ int main(int argc, char **argv) {
     Parser * p;
     p = new Parser(inputString);
     int parseResult = p->parse();
-    std::cout << "Parser code: " << parseResult << std::endl;
+    if (parseResult != 0) {
+        std::cout << "Parsing not successful. Terminating." << std::endl;
+        return parseResult;
+    }
 
     Visualizer * v;
     v = new Visualizer();
-    //std::cout << "Raw input: " << std::endl \
-        //<< v->print(p->getRaw()) << std::endl;
-    std::cout << "Parsed result: " << std::endl \
-        << v->print(p->unsolved) << std::endl;
+    std::cout << "Parsed result: " << std::endl;
+    std::cout << v->print(p->unsolved) << std::endl;
 
     ReducerInterface * r;
     r = new Reducer();
