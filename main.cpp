@@ -4,6 +4,12 @@
 #include "parser.hpp"
 
 
+/**
+ * "Iterator" to loop over slices
+ *
+ * Note: This is not an iterator that can be used by STL,
+ * e.g. std::reduce. It's just something that comes handy for our needs.
+ */
 template <class T>
 class SliceIterator {
     private:
@@ -234,15 +240,14 @@ int main(int argc, char **argv) {
     std::cout << "Parsed result: " << std::endl;
     std::cout << Visualizer::printBoard(board) << std::endl;
 
-    SlicerInterface * slicer;
-    slicer = new HorizontalSlicer(board);
-    printSlices(slicer);
-    slicer = new VerticalSlicer(board);
-    printSlices(slicer);
-    slicer = new BoxSlicer(board);
-    printSlices(slicer);
-    slicer = new DiagonalSlicer(board);
-    printSlices(slicer);
+    SlicerInterface **slicer;
+    slicer[0] = new HorizontalSlicer(board);
+    slicer[1] = new VerticalSlicer(board);
+    slicer[2] = new BoxSlicer(board);
+    slicer[3] = new DiagonalSlicer(board);
+    for (int i = 0; i < 4; i++) {
+        printSlices(slicer[i]);
+    }
  
     ReducerInterface * r;
     r = new Reducer();
