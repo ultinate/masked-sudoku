@@ -80,7 +80,6 @@ void test_getMaskFromInt() {
     TEST(m == Parser::getMaskFromInt(9));
 }
 
-
 /** 
  * Run all unit tests 
  * 
@@ -91,7 +90,28 @@ int runUnitTests()
 { 
     try 
     { 
-        TEST_SECTION("parser"); 
+        TEST_SECTION("types");
+        TEST_GROUP("mask");
+        mask m;
+        m = 0x0;
+        TEST(m == 0);
+
+        TEST_GROUP("slice");
+        mask *slice = new mask[N];
+        slice[0] = m;
+        slice[1] = 0x2;
+        slice[9] = 0x1ff;
+        TEST(slice[1] == 0x2);
+
+        TEST_GROUP("board");
+        mask *board = new mask[N*N];
+        board[0] = m;
+        board[1] = 0x3;
+        TEST(board[0] == 0x0);
+        TEST(board[1] == 0x3);
+
+
+        TEST_SECTION("parser");
  
         TEST_GROUP("inputCharToInt"); 
         test_inputCharToInt(); 
@@ -120,7 +140,7 @@ int runUnitTests()
         TEST(0x1ff == 0b111111111);
         
         // overflow of uint16 (= unsigned short int on this system)
-        mask m = 0xffffffff;
+        m = 0xffffffff;
         TEST(m == 0xffff);
 
         m = 0xffff;
@@ -128,7 +148,7 @@ int runUnitTests()
         m = 0x0;
         TEST (m == 0x0);
         TEST (m == 0b0000000000000000);
- 
+
         TEST_SUMMARY; 
     } 
     catch (...) 

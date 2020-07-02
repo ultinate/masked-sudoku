@@ -4,20 +4,149 @@
 #include "parser.hpp"
 
 
+template <class T>
+class SliceIterator {
+    private:
+        T *t;
+    public:
+        SliceIterator(T *t) : t(t) { }
+        mask * Next() {
+            return t->getSlice();
+        }
+        bool isDone() {
+            return t->isDone();
+        }
+};
+
 class SlicerInterface {
     public:
-        virtual ~SlicerInterface();
-        virtual slice& getSlice(board&);
+        virtual mask * getSlice() = 0;
+        virtual bool isDone() = 0;
+        virtual SliceIterator<SlicerInterface> createIterator() = 0;
+        virtual std::string getName() = 0;
+};
+
+class BoxSlicer : public SlicerInterface {
+    private:
+        mask *board;
+        int field;
+    public:
+        BoxSlicer(mask *board) : board(board) {
+            field = 0;
+        }
+        ~BoxSlicer() {}
+        std::string getName() { return "Box slices"; }
+        mask * getSlice() {
+            int col = field % 3;
+            int row = field / 3;
+            int topleft = col * 3 + row * 3 * N;
+            mask *slice = new mask[N];
+            for (int i = 0; i < N; i++) {
+                int plusCol = i % 3;
+                int plusRow = i / 3;
+                slice[i] = board[topleft + plusCol + plusRow * N];
+            }
+            ++field;
+            return slice;
+        }
+        bool isDone() {
+            return field > N;
+        }
+        SliceIterator<SlicerInterface> createIterator() {
+            return SliceIterator<SlicerInterface>(this);
+        }
+};
+
+class DiagonalSlicer : public SlicerInterface {
+    private:
+        mask *board;
+        int selection;
+    public:
+        DiagonalSlicer(mask *board) : board(board) {
+            selection = 0;
+        }
+        ~DiagonalSlicer() {}
+        std::string getName() { return "Diagonal slices"; }
+        mask * getSlice() {
+            mask *slice = new mask[N];
+            if (selection == 0) {
+                // top left to bottom right
+                for (int i = 0; i < N; i++) {
+                    slice[i] = board[i*N + i];
+                }
+            }
+            else if (selection == 1) {
+                // top right to bottom left
+                for (int i = 0; i < N; i++) {
+                    slice[i] = board[(i+1)*N - i - 1];
+                }
+            }
+            ++selection;
+            return slice;
+        }
+        bool isDone() {
+            return selection > 2;
+        }
+        SliceIterator<SlicerInterface> createIterator() {
+            return SliceIterator<SlicerInterface>(this);
+        }
+};
+
+class VerticalSlicer : public SlicerInterface {
+    private:
+        mask *board;
+        int col;
+    public:
+        VerticalSlicer(mask *board) : board(board) {
+            col = 0;
+        }
+        ~VerticalSlicer() {}
+        std::string getName() { return "Vertical slices"; }
+        mask * getSlice() {
+            mask *slice = new mask[N];
+            for (int i = 0; i < N; i++) {
+                slice[i] = board[i*N + col];
+            }
+            ++col;
+            return slice;
+        }
+        bool isDone() {
+            return col > N;
+        }
+        SliceIterator<SlicerInterface> createIterator() {
+            return SliceIterator<SlicerInterface>(this);
+        }
 };
 
 class HorizontalSlicer : public SlicerInterface {
-
-
+    private:
+        mask *board;
+        int row;
+    public:
+        HorizontalSlicer(mask *board) : board(board) {
+            row = 0;
+        }
+        ~HorizontalSlicer() {}
+        std::string getName() { return "Horizontal slices"; }
+        mask * getSlice() {
+            mask *slice = new mask[N];
+            for (int i = 0; i < N; i++) {
+                slice[i] = board[i + row*N];
+            }
+            ++row;
+            return slice;
+        }
+        bool isDone() {
+            return row > N;
+        }
+        SliceIterator<SlicerInterface> createIterator() {
+            return SliceIterator<SlicerInterface>(this);
+        }
 };
 
 class ReducerInterface {
     public:
-        virtual bool reduceSlice(slice&) = 0;
+        virtual bool reduceSlice(mask *slice) = 0;
 };
 
 class Reducer
@@ -25,7 +154,7 @@ class Reducer
     public:
         Reducer() {}
         ~Reducer() {}
-        bool reduceSlice(slice& inSlice) {
+        bool reduceSlice(mask *slice) {
             return true;
         }
 };
@@ -36,7 +165,6 @@ class Reducer
 class Visualizer {
     public:
         Visualizer() {
-            std::cout << "creating Visualizer" << std::endl;
         }
         static std::string maskToStr(mask m) {
             unsigned int number = Parser::getIntFromMask(m);
@@ -45,13 +173,24 @@ class Visualizer {
             else
                 return " ";
         }
-        std::string print(board& b) {
+        static std::string printSlice(mask *slice) {
+            std::string outString = "";
+            outString += "| ";
+            for (int i = 0; i < N; i++) {
+                outString += maskToStr(slice[i]);
+                outString += " ";
+                if ((i + 1) % 3 == 0)
+                    outString += "| ";
+            }
+            return outString;
+        }
+        static std::string printBoard(mask *board) {
             std::string outString = "";
             outString += "-------------------------\n";
             for (int i = 0; i < N*N; i++) {
                 if (i % N == 0)
                     outString += "| ";
-                outString += maskToStr(b[i]);
+                outString += maskToStr(board[i]);
                 outString += " ";
                 if ((i + 1) % 3 == 0)
                     outString += "| ";
@@ -64,8 +203,18 @@ class Visualizer {
         }
 };
 
+void printSlices(SlicerInterface *slicer) {
+    std::cout << slicer->getName() << ": " << std::endl;
+    SliceIterator<SlicerInterface> sliceIt = slicer->createIterator();
+    for (mask *slice = sliceIt.Next();
+            !sliceIt.isDone();
+            slice = sliceIt.Next()) {
+        std::cout << Visualizer::printSlice(slice) << std::endl;
+    }
+}
+
 int main(int argc, char **argv) {
-    std::cout << "sudoku solver, v 0.0.1" << std::endl;
+    std::cout << "sudoku solver, v 0.0.2" << std::endl;
     std::string inputString;
     std::string tmpString;
     while (std::getline(std::cin, tmpString))
@@ -80,15 +229,25 @@ int main(int argc, char **argv) {
         std::cout << "Parsing not successful. Terminating." << std::endl;
         return parseResult;
     }
+    mask *board = p->unsolvedBoard;
 
-    Visualizer * v;
-    v = new Visualizer();
     std::cout << "Parsed result: " << std::endl;
-    std::cout << v->print(p->unsolved) << std::endl;
+    std::cout << Visualizer::printBoard(board) << std::endl;
 
+    SlicerInterface * slicer;
+    slicer = new HorizontalSlicer(board);
+    printSlices(slicer);
+    slicer = new VerticalSlicer(board);
+    printSlices(slicer);
+    slicer = new BoxSlicer(board);
+    printSlices(slicer);
+    slicer = new DiagonalSlicer(board);
+    printSlices(slicer);
+ 
     ReducerInterface * r;
     r = new Reducer();
     std::cout << "Reducer info: " << r << std::endl;
+
     return 0;
 }
 

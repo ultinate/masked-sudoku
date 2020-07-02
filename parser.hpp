@@ -4,8 +4,6 @@
 
 const int N = 9;
 typedef unsigned short int mask;
-typedef mask slice[N];
-typedef mask board[N*N];
 
 
 class Parser {
@@ -21,7 +19,7 @@ class Parser {
         static unsigned int log2(mask m);
         static mask getMaskFromInt(unsigned int i);
 
-        board unsolved;
+        mask * unsolvedBoard;
 
         Parser(std::string s);
         int parse();

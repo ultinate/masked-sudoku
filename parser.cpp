@@ -59,6 +59,7 @@ unsigned int Parser::log2(mask m) {
 
 Parser::Parser(std::string s) {
     this->s = s;
+    unsolvedBoard = new mask[N*N];
 }
 
 mask Parser::getMaskFromInt(unsigned int i) {
@@ -72,7 +73,7 @@ int Parser::parse() {
     }
     for (int i = 0; i < N * N; i++) {
         char c = this->s[i];
-        unsolved[i] = inputCharToMask(c);
+        unsolvedBoard[i] = inputCharToMask(c);
     }
     return 0;
 }
