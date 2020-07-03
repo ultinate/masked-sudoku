@@ -2,17 +2,7 @@
 
 ## Getting Started
 
-Build:
-
-```
-make build
-```
-
-Example call:
-
-```
-cat in-2.txt | ./sudoku
-```
+Use `make` to build and `make run` to run an example.
 
 
 Example input sudoku:
@@ -28,4 +18,8 @@ Example input sudoku:
 ..4...7.2
 ..6...1.3
 ```
+
+## Unit Tests
+
+Use `make test` to run unit tests.
 
