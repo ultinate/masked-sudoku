@@ -1,8 +1,6 @@
 #include "parser.hpp"
 
-/**
- * Parser methods
- */
+
 unsigned int Parser::inputCharToInt(char c) {
     if (c == '.')
         return 0;

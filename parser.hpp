@@ -1,6 +1,10 @@
+#ifndef PARSER_HPP
+#define PARSER_HPP
+
 #include <iostream>
 #include <string>
 #include <cstring>
+
 
 const int N = 9;
 typedef unsigned short int mask;
@@ -26,3 +30,4 @@ class Parser {
         std::string getRaw() { return s; }
 };
 
+#endif
