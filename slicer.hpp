@@ -16,7 +16,9 @@ class SliceIterator {
     private:
         T *t;
     public:
-        SliceIterator(T *t) : t(t) { }
+        SliceIterator(T *t) : t(t) {
+            std::cout << "SliceIterator created. Memory address: " << this << std::endl;
+        }
         mask ** Next() {
             return t->getSlice();
         }
@@ -42,8 +44,7 @@ class HorizontalSlicer : public SlicerInterface {
     public:
         HorizontalSlicer(mask *board) : board(board) {
             row = 0;
-            std::cout << getName() << ": " << &board << std::endl;
-            std::cout << getName() << ": " << &board[1] << std::endl;
+            std::cout << getName() << ". Board at: " << &board << std::endl;
         }
         ~HorizontalSlicer() {}
         mask ** getSlice();
@@ -60,8 +61,7 @@ class VerticalSlicer : public SlicerInterface {
     public:
         VerticalSlicer(mask *board) : board(board) {
             col = 0;
-            std::cout << getName() << ": " << &board << std::endl;
-            std::cout << getName() << ": " << &board[1] << std::endl;
+            std::cout << getName() << ". Board at: " << &board << std::endl;
         }
         ~VerticalSlicer() {}
         mask ** getSlice();
@@ -78,8 +78,7 @@ class BoxSlicer : public SlicerInterface {
     public:
         BoxSlicer(mask *board) : board(board) {
             field = 0;
-            std::cout << getName() << ": " << &board << std::endl;
-            std::cout << getName() << ": " << &board[1] << std::endl;
+            std::cout << getName() << ". Board at: " << &board << std::endl;
         }
         ~BoxSlicer() {}
         mask ** getSlice();
@@ -95,8 +94,7 @@ class DiagonalSlicer : public SlicerInterface {
     public:
         DiagonalSlicer(mask *board) : board(board) {
             selection = 0;
-            std::cout << getName() << ": " << &board << std::endl;
-            std::cout << getName() << ": " << &board[1] << std::endl;
+            std::cout << getName() << ". Board at: " << &board << std::endl;
         }
         ~DiagonalSlicer() {}
         mask ** getSlice();

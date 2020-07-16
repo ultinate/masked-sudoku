@@ -84,9 +84,9 @@ int runUnitTests()
 
         TEST_SECTION("slicer");
         test_HorizontalSlicer_Next();
-        test_VerticalSlicer_Next();
-        test_BoxSlicer_Next();
-        test_DiagonalSlicer_Next();
+        //test_VerticalSlicer_Next();
+        //test_BoxSlicer_Next();
+        //test_DiagonalSlicer_Next();
 
         TEST_GROUP("hex and binary representation"); 
         TEST(0x1 == 1); 

@@ -39,7 +39,17 @@ void test_HorizontalSlicer_Next() {
     std::cout << slicer->getName() << std::endl;
     SliceIterator<SlicerInterface> sliceIt = slicer->createIterator();
     mask **slice;
+    std::cout << "Iterate once ..." << std::endl;
     for (slice = sliceIt.Next(); !sliceIt.isDone(); slice = sliceIt.Next()) {
+        std::cout << Visualizer::printSlice(*slice) << std::endl;
+        TEST("| 1 2 3 | 4 5 6 | 7 8 9 | " == Visualizer::printSlice(*slice));
+    }
+    // iterate again
+    // TODO: I don't want to create another slicer, just a new iterator of the same slicer
+    std::cout << "Iterate again ..." << std::endl;
+    SlicerInterface *slicer2 = new HorizontalSlicer(board);
+    SliceIterator<SlicerInterface> sliceIt2 = slicer2->createIterator();
+    for (slice = sliceIt2.Next(); !sliceIt2.isDone(); slice = sliceIt2.Next()) {
         std::cout << Visualizer::printSlice(*slice) << std::endl;
         TEST("| 1 2 3 | 4 5 6 | 7 8 9 | " == Visualizer::printSlice(*slice));
     }
