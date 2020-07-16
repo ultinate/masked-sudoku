@@ -17,7 +17,7 @@ class SliceIterator {
         T *t;
     public:
         SliceIterator(T *t) : t(t) { }
-        mask * Next() {
+        mask ** Next() {
             return t->getSlice();
         }
         bool isDone() {
@@ -25,13 +25,51 @@ class SliceIterator {
         }
 };
 
+
 class SlicerInterface {
     public:
-        virtual mask * getSlice() = 0;
+        virtual mask ** getSlice() = 0;
         virtual bool isDone() = 0;
         virtual SliceIterator<SlicerInterface> createIterator() = 0;
         virtual std::string getName() = 0;
 };
+
+
+class HorizontalSlicer : public SlicerInterface {
+    private:
+        mask *board;
+        int row;
+    public:
+        HorizontalSlicer(mask *board) : board(board) {
+            row = 0;
+            std::cout << getName() << ": " << &board << std::endl;
+            std::cout << getName() << ": " << &board[1] << std::endl;
+        }
+        ~HorizontalSlicer() {}
+        mask ** getSlice();
+        bool isDone();
+        SliceIterator<SlicerInterface> createIterator();
+        std::string getName();
+};
+
+
+class VerticalSlicer : public SlicerInterface {
+    private:
+        mask *board;
+        int col;
+    public:
+        VerticalSlicer(mask *board) : board(board) {
+            col = 0;
+            std::cout << getName() << ": " << &board << std::endl;
+            std::cout << getName() << ": " << &board[1] << std::endl;
+        }
+        ~VerticalSlicer() {}
+        mask ** getSlice();
+        bool isDone();
+        SliceIterator<SlicerInterface> createIterator();
+        std::string getName();
+};
+
 
 class BoxSlicer : public SlicerInterface {
     private:
@@ -40,9 +78,11 @@ class BoxSlicer : public SlicerInterface {
     public:
         BoxSlicer(mask *board) : board(board) {
             field = 0;
+            std::cout << getName() << ": " << &board << std::endl;
+            std::cout << getName() << ": " << &board[1] << std::endl;
         }
         ~BoxSlicer() {}
-        mask * getSlice();
+        mask ** getSlice();
         bool isDone();
         SliceIterator<SlicerInterface> createIterator();
         std::string getName();
@@ -55,39 +95,11 @@ class DiagonalSlicer : public SlicerInterface {
     public:
         DiagonalSlicer(mask *board) : board(board) {
             selection = 0;
+            std::cout << getName() << ": " << &board << std::endl;
+            std::cout << getName() << ": " << &board[1] << std::endl;
         }
         ~DiagonalSlicer() {}
-        mask * getSlice();
-        bool isDone();
-        SliceIterator<SlicerInterface> createIterator();
-        std::string getName();
-};
-
-class VerticalSlicer : public SlicerInterface {
-    private:
-        mask *board;
-        int col;
-    public:
-        VerticalSlicer(mask *board) : board(board) {
-            col = 0;
-        }
-        ~VerticalSlicer() {}
-        mask * getSlice();
-        bool isDone();
-        SliceIterator<SlicerInterface> createIterator();
-        std::string getName();
-};
-
-class HorizontalSlicer : public SlicerInterface {
-    private:
-        mask *board;
-        int row;
-    public:
-        HorizontalSlicer(mask *board) : board(board) {
-            row = 0;
-        }
-        ~HorizontalSlicer() {}
-        mask * getSlice();
+        mask ** getSlice();
         bool isDone();
         SliceIterator<SlicerInterface> createIterator();
         std::string getName();

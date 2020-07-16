@@ -19,9 +19,11 @@ class Parser {
         static mask inputCharToMask(char c);
         static unsigned int getIntFromMask(mask m);
         static bool isOnlyOneBit(mask m);
-        static int countBits(mask m);
+        static bool isBitSet(mask m, unsigned int i);
+        static unsigned int countBits(mask m);
         static unsigned int log2(mask m);
         static mask getMaskFromInt(unsigned int i);
+        static mask getNotMask(unsigned int i);
 
         mask * unsolvedBoard;
 

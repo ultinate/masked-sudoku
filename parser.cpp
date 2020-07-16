@@ -29,7 +29,7 @@ bool Parser::isOnlyOneBit(mask m) {
     return Parser::countBits(m) == 1;
 }
 
-int Parser::countBits(mask m) {
+unsigned int Parser::countBits(mask m) {
     int counter = 0;
     for (int i = 0; i < N; i++) {
         if ((m & (0x1 << i)) > 0) {
@@ -60,8 +60,16 @@ Parser::Parser(std::string s) {
     unsolvedBoard = new mask[N*N];
 }
 
+bool Parser::isBitSet(mask m, unsigned int i) {
+    return m & (0x1 << (i - 1));
+}
+
 mask Parser::getMaskFromInt(unsigned int i) {
     return 0x1 << (i - 1);
+}
+
+mask Parser::getNotMask(unsigned int i) {
+    return ~(0x1 << (i - 1));
 }
 
 int Parser::parse() {
