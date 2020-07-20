@@ -6,8 +6,11 @@
 /**
  * HorizontalSlicer
  */
-std::string HorizontalSlicer::getName() { return "Horizontal slices"; }
-mask ** HorizontalSlicer::getSlice() {
+std::string HorizontalSlicer::getName() {
+    return "Horizontal slices";
+}
+
+mask ** HorizontalSlicer::nextSlice() {
     mask **slice = new mask*[N];
     for (int i = 0; i < N; i++) {
         slice[i] = &board[i + row*N];
@@ -15,41 +18,41 @@ mask ** HorizontalSlicer::getSlice() {
     ++row;
     return slice;
 }
+
 bool HorizontalSlicer::isDone() {
     return row > N;
-}
-SliceIterator<SlicerInterface> HorizontalSlicer::createIterator() {
-    return SliceIterator<SlicerInterface>(this);
 }
 
 
 /**
  * VerticalSlicer
  */
-std::string VerticalSlicer::getName() { return "Vertical slices"; }
-mask ** VerticalSlicer::getSlice() {
+std::string VerticalSlicer::getName() {
+    return "Vertical slices";
+}
+
+mask ** VerticalSlicer::nextSlice() {
     mask **slice = new mask*[N];
     for (int i = 0; i < N; i++) {
         slice[i] = &board[i*N + col];
-        // DEBUG
-        //std::cout << (i*N + col) << " " << board[i*N + col] << " " << slice[i] << std::endl;
     }
     ++col;
     return slice;
 }
+
 bool VerticalSlicer::isDone() {
     return col > N;
-}
-SliceIterator<SlicerInterface> VerticalSlicer::createIterator() {
-    return SliceIterator<SlicerInterface>(this);
 }
 
 
 /**
  * BoxSlicer
  */
-std::string BoxSlicer::getName() { return "Box slices"; }
-mask ** BoxSlicer::getSlice() {
+std::string BoxSlicer::getName() {
+    return "Box slices";
+}
+
+mask ** BoxSlicer::nextSlice() {
     int col = field % 3;
     int row = field / 3;
     int topleft = col * 3 + row * 3 * N;
@@ -62,19 +65,20 @@ mask ** BoxSlicer::getSlice() {
     ++field;
     return slice;
 }
+
 bool BoxSlicer::isDone() {
     return field > N;
-}
-SliceIterator<SlicerInterface> BoxSlicer::createIterator() {
-    return SliceIterator<SlicerInterface>(this);
 }
 
 
 /**
  * DiagonalSlicer
  */
-std::string DiagonalSlicer::getName() { return "Diagonal slices"; }
-mask ** DiagonalSlicer::getSlice() {
+std::string DiagonalSlicer::getName() {
+    return "Diagonal slices";
+}
+
+mask ** DiagonalSlicer::nextSlice() {
     mask **slice = new mask*[N];
     if (selection == 0) {
         // top left to bottom right
@@ -91,10 +95,8 @@ mask ** DiagonalSlicer::getSlice() {
     ++selection;
     return slice;
 }
+
 bool DiagonalSlicer::isDone() {
     return selection > 2;
-}
-SliceIterator<SlicerInterface> DiagonalSlicer::createIterator() {
-    return SliceIterator<SlicerInterface>(this);
 }
 

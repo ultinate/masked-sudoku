@@ -17,12 +17,13 @@
 SolverInterface::~SolverInterface() {
 }
 
-mask * SolverInterface::transposeSlice(mask *slice) {
+// TODO: Creating mask array, then slice seems redundant. Simplify?
+mask ** SolverInterface::transposeSlice(mask **slice) {
     mask *sliceT = new mask[N];
     for (int col = 0; col < N; col++) {
         mask vertical = 0x0;
         for (int row = 0; row < N; row++) {
-            mask b = (slice[row] & (0x1 << (N - col - 1)));
+            mask b = *slice[row] & (0x1 << (N - col - 1));
             if (row - col > 0) {
                 b = b >> (row - col);
             }
@@ -33,18 +34,22 @@ mask * SolverInterface::transposeSlice(mask *slice) {
         }
         sliceT[col] = vertical;
     }
-    return sliceT;
+    mask **sliceTPtr = new mask*[N];
+    for (int i = 0; i < N; i++) {
+        sliceTPtr[i] = &sliceT[i];
+    }
+    return sliceTPtr;
 }
 
-void SolverInterface::copySlice(mask *sliceTo, mask *sliceFrom) {
+void SolverInterface::copySlice(mask **sliceTo, mask **sliceFrom) {
     for (int i = 0; i < N; i++) {
         sliceTo[i] = sliceFrom[i];
     }
 }
 
-bool SolverInterface::isSliceEqual(mask *lhs, mask *rhs) {
+bool SolverInterface::isSliceEqual(mask **sliceLhs, mask **sliceRhs) {
     for (int i = 0; i < N; i++) {
-        if (rhs[i] != lhs[i]) {
+        if (*sliceLhs[i] != *sliceRhs[i]) {
             return false;
         }
     }
@@ -60,22 +65,20 @@ void SolverInterface::copyBoard(mask *boardTo, mask *boardFrom) {
 bool SolverInterface::isBoardEqual(mask *lhs, mask *rhs) {
     HorizontalSlicer slicerLhs(lhs);
     HorizontalSlicer slicerRhs(rhs);
-    SliceIterator<SlicerInterface> sliceItLhs = slicerLhs.createIterator();
-    SliceIterator<SlicerInterface> sliceItRhs = slicerRhs.createIterator();
     mask **sliceLhs;
     mask **sliceRhs;
-    for (sliceLhs = sliceItLhs.Next(), sliceRhs = sliceItRhs.Next();
-            !sliceItLhs.isDone() && !sliceItRhs.isDone();
-            sliceLhs = sliceItLhs.Next(), sliceRhs = sliceItRhs.Next()
+    for (sliceLhs = slicerLhs.nextSlice(), sliceRhs = slicerRhs.nextSlice();
+            !slicerLhs.isDone() && !slicerRhs.isDone();
+            sliceLhs = slicerLhs.nextSlice(), sliceRhs = slicerRhs.nextSlice()
             ) {
-        if (!isSliceEqual(*sliceLhs, *sliceRhs)) {
+        if (!isSliceEqual(sliceLhs, sliceRhs)) {
             return false;
         }
     }
     return true;
 }
 
-bool SolverInterface::isSolved(mask *slice) {
+bool SolverInterface::isSliceSolved(mask **slice) {
     bool isFilled = isSolvedDetail(slice);
     bool isCorrect = isSolvedDetail(transposeSlice(slice));
     if (isFilled && isCorrect) {
@@ -91,14 +94,28 @@ bool SolverInterface::isSolved(mask *slice) {
     }
 }
 
-bool SolverInterface::isSolved(mask **board) {
-    // TODO
+bool SolverInterface::isBoardSolved(mask *board) {
+    int slicerLength = 3;
+    SlicerInterface *slicer[slicerLength];
+    EliminateSolver es;
+    slicer[0] = new HorizontalSlicer(board);
+    slicer[1] = new VerticalSlicer(board);
+    slicer[2] = new BoxSlicer(board);
+    for (int i = 0; i < slicerLength; i++) {
+        for (mask **slice = slicer[i]->nextSlice();
+                !slicer[i]->isDone();
+                slice = slicer[i]->nextSlice()) {
+            if (!es.isSliceSolved(slice)) {
+                return false;
+            }
+        }
+    }
     return true;
 }
 
-bool SolverInterface::isSolvedDetail(mask *slice) {
+bool SolverInterface::isSolvedDetail(mask **slice) {
     for (int i = 0; i < N; i++) {
-        if (!Parser::isOnlyOneBit(slice[i])) {
+        if (!Parser::isOnlyOneBit(*slice[i])) {
             return false;
         }
     }
@@ -110,48 +127,41 @@ bool SolverInterface::isSolvedDetail(mask *slice) {
  * DetermineSolver
  */
 
-bool DetermineSolver::solveSlice(mask *slice) {
+void DetermineSolver::solveSlice(mask **slice) {
     //std::cout << "DetermineSolver before: " << Visualizer::printSlice(slice) << std::endl;
     EliminateSolver es;
-    mask *sliceT = es.transposeSlice(slice);
+    mask **sliceT = es.transposeSlice(slice);
     //std::cout << "DetermineSolver T: " << Visualizer::printSlice(sliceT) << std::endl;
     es.solveSlice(sliceT);
-    mask *sliceAfter = es.transposeSlice(sliceT);
+    mask **sliceAfter = es.transposeSlice(sliceT);
     //std::cout << "DetermineSolver after:  " << Visualizer::printSlice(sliceAfter) << std::endl;
     bool hasChanged = !isSliceEqual(slice, sliceAfter);
     if (hasChanged) {
         copySlice(slice, sliceAfter);
     }
-    return hasChanged;
 }
+
 
 /**
  * EliminateSolver
  */
 
-bool EliminateSolver::solveSlice(mask *slice) {
-    bool hasChanged = false;
+void EliminateSolver::solveSlice(mask **slice) {
     for (int i = 0; i < N; i++) {
-        if (Parser::isOnlyOneBit(slice[i])) {
-            unsigned int valueToEliminate = Parser::log2(slice[i]);
-            hasChanged |= eliminate(slice, valueToEliminate, i);
+        if (Parser::isOnlyOneBit(*slice[i])) {
+            unsigned int valueToEliminate = Parser::log2(*slice[i]);
+            eliminate(slice, valueToEliminate, i);
         }
     }
-    return hasChanged;
 }
 
-bool EliminateSolver::eliminate(mask *slice, unsigned int valueToEliminate,
+void EliminateSolver::eliminate(mask **slice, unsigned int valueToEliminate,
                       int exceptIndex) {
-    bool hasChanged = false;
     mask eliminateMask = Parser::getNotMask(valueToEliminate);
     for (int i = 0; i < N; i++) {
         if (i != exceptIndex) {
-            mask before = slice[i];
-            slice[i] = slice[i] & eliminateMask;
-            if (before != slice[i])
-                hasChanged = true;
+            *slice[i] = *slice[i] & eliminateMask;
         }
     }
-    return hasChanged;
 }
 

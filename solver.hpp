@@ -24,25 +24,31 @@ class SolverInterface {
          *
          * Tries to solve a slice in-place.
          */
-        virtual bool solveSlice(mask *slice) = 0;
+        virtual void solveSlice(mask **slice) = 0;
 
         /**
          * Helper to transpose a slice
          */
-        mask * transposeSlice(mask *slice);
+        mask ** transposeSlice(mask **slice);
 
         /**
          * Helper to copy sliceFrom to sliceTo
+         *
+         * Does not copy any values. Just points the elements in sliceTo to
+         * the same addresses as sliceFrom.
          */
-        void copySlice(mask *sliceTo, mask *sliceFrom);
+        void copySlice(mask **sliceTo, mask **sliceFrom);
 
         /**
          * Helper to check whether two slices are equal to every bit.
          */
-        bool isSliceEqual(mask *lhs, mask *rhs);
+        bool isSliceEqual(mask **sliceLhs, mask **sliceRhs);
 
          /**
-         * Helper to copy sliceFrom to sliceTo
+         * Helper to copy boardFrom to boardTo
+         *
+         * Does not copy any values. Just points the elements in boardTo to
+         * the same addresses as boardFrom.
          */
         void copyBoard(mask *boardTo, mask *boardFrom);
        
@@ -52,7 +58,7 @@ class SolverInterface {
          * Just checks isEqual for a set of slices representing the
          * complete board (e.g. all horizonal ones).
          */
-        bool isBoardEqual(mask *lhs, mask *rhs);
+        bool isBoardEqual(mask *boardLhs, mask *boardRhs);
 
         /**
          * Helper to check whether a slice is legally solved.
@@ -60,17 +66,17 @@ class SolverInterface {
          * This means that the slide has a number fixed for every
          * field and that no number is duplicated.
          */
-        bool isSolved(mask *slice);
+        bool isSliceSolved(mask **slice);
          
         /**
          * Helper to check whether a board is legally solved.
          *
          * Just checks all slices for isSolved().
          */
-        bool isSolved(mask **board);
+        bool isBoardSolved(mask *board);
 
     private:
-        bool isSolvedDetail(mask *slice);
+        bool isSolvedDetail(mask **slice);
 };
 
 
@@ -89,7 +95,7 @@ class DetermineSolver : public SolverInterface {
          *
          * Tries to solve a slice in-place.
          */
-        bool solveSlice(mask *slice);
+        void solveSlice(mask **slice);
 };
 
 
@@ -108,8 +114,8 @@ class EliminateSolver : public SolverInterface {
          *
          * Tries to solve a slice in-place.
          */
-        bool solveSlice(mask *slice);
-        bool eliminate(mask *slice, unsigned int valueToEliminate,
+        void solveSlice(mask **slice);
+        void eliminate(mask **slice, unsigned int valueToEliminate,
                           int exceptIndex);
 };
 

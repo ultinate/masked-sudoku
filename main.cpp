@@ -8,27 +8,17 @@
 
 
 void printSlices(SlicerInterface *slicer) {
-    // std::cout << slicer->getName() << ": " << std::endl;
-    SliceIterator<SlicerInterface> sliceIt = slicer->createIterator();
-    mask **slice;
-    for (slice = sliceIt.Next(); !sliceIt.isDone(); slice = sliceIt.Next()) {
-        std::cout << Visualizer::printSlice(*slice) << std::endl;
+    for (mask **slice = slicer->nextSlice(); !slicer->isDone(); slice = slicer->nextSlice()) {
+        std::cout << Visualizer::printSlice(slice) << std::endl;
     }
 }
 
-bool solveAllSlices(SlicerInterface *slicer, SolverInterface *solver) {
-    bool hasChanged = false;
-    SliceIterator<SlicerInterface> sliceIt = slicer->createIterator();
-    mask **slice;
-    for (slice = sliceIt.Next(); !sliceIt.isDone(); slice = sliceIt.Next()) {
-        // std::cout << "Slice before: " << Visualizer::printSlice(*slice) << std::endl;
-        bool changed = solver->solveSlice(*slice);
-        if (changed) {
-            // std::cout << "Slice after:  " << Visualizer::printSlice(*slice) << std::endl;
-        }
-        hasChanged |= changed;
+void solveAllSlices(SlicerInterface *slicer, SolverInterface *solver) {
+    for (mask **slice = slicer->nextSlice();
+            !slicer->isDone();
+            slice = slicer->nextSlice()) {
+        solver->solveSlice(slice);
     }
-    return hasChanged;
 }
 
 /**
@@ -39,10 +29,10 @@ bool solveAllSlices(SlicerInterface *slicer, SolverInterface *solver) {
  */
 bool solveBoard(mask *board) {
     int maxLoops = 1000;
-    int infoLoops = 100;
+    int infoLoops = 10;
     bool hasChanged = true;
     int solverLength = 2;
-    int slicerLength = 1;  // DEBUG
+    int slicerLength = 3;
     SolverInterface *solver[solverLength];
     SlicerInterface *slicer[slicerLength];
     DetermineSolver ds;
@@ -101,7 +91,7 @@ int main(int argc, char **argv) {
     std::cout << "Solving board ..." << std::endl;
     solveBoard(board);
     EliminateSolver es;
-    int globalResult = es.isSolved(board);
+    int globalResult = es.isBoardSolved(board);
     if (globalResult) {
         std::cout << "Solved!" << std::endl;
     }
@@ -110,10 +100,10 @@ int main(int argc, char **argv) {
     }
 
     std::cout << "Output board: " << std::endl;
-    for (int i = 0; i < N; i++) {
-        std::cout << Visualizer::printBoard(board) << std::endl;
-        std::cout << Visualizer::printBoardHighlight(board, i+1) << std::endl;
-    }
+    std::cout << Visualizer::printBoard(board) << std::endl;
+    // DEBUG
+    // int i = 7;
+    // std::cout << Visualizer::printBoardHighlight(board, i) << std::endl;
 
     return globalResult;
 }

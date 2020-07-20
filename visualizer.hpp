@@ -20,11 +20,11 @@ class Visualizer {
         static std::string maskToStr(mask m, unsigned int optional) {
             return maskToStr(m);
         }
-        static std::string printSlice(mask *slice) {
+        static std::string printSlice(mask **slice) {
             std::string outString = "";
             outString += "| ";
             for (int i = 0; i < N; i++) {
-                outString += maskToStr(slice[i]);
+                outString += maskToStr(*slice[i]);
                 outString += " ";
                 if ((i + 1) % 3 == 0)
                     outString += "| ";
@@ -57,10 +57,6 @@ class Visualizer {
                 unsigned int optional
                 ) {
             std::string outString = "";
-            //DEBUG
-            std::stringstream bb;
-            bb << board;
-            outString += "Board at : " + bb.str() + "\n";
             outString += "-------------------------\n";
             for (int i = 0; i < N*N; i++) {
                 if (i % N == 0)

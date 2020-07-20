@@ -74,7 +74,8 @@ mask Parser::getNotMask(unsigned int i) {
 
 int Parser::parse() {
     if (this->s.length() != N * N) {
-        std::cout << "Input string has wrong length" << std::endl;
+        std::cout << "Input string has wrong length (" <<
+            this->s.length() << " instead of " << N*N << ")" << std::endl;
         return -1;
     }
     for (int i = 0; i < N * N; i++) {

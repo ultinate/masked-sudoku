@@ -6,14 +6,16 @@ OUTFILE=sudoku.out
 OUTFILE_TEST=test/test_sudoku.out
 SRCS=parser.cpp slicer.cpp solver.cpp
 OBJS=$(subst .cpp,.o,$(SRCS))
+TEST_SRCS=test/test_parser.hpp test/test_slicer.hpp test/test_solver.hpp
 
 all : $(OUTFILE) test check
 
-$(OUTFILE) : main.cpp $(OBJS) solver.hpp
+$(OUTFILE) : main.cpp $(OBJS)
 	$(CXX) $(CFLAGS) main.cpp -o $(OUTFILE) $(OBJS)
 
 clean:
 	$(RM) *.o *.d
+	$(RM) test/*.o test/*.d
 
 parser.o : parser.cpp parser.hpp
 
@@ -21,13 +23,11 @@ slicer.o : slicer.cpp slicer.hpp
 
 solver.o : solver.cpp solver.hpp
 
-$(OUTFILE_TEST) : $(OBJS) test/test_all.o test/test_parser.hpp test/test_slicer.hpp test/test_solver.hpp
-	g++ $(CFLAGS) test/test_all.cpp -o $(OUTFILE_TEST) $(OBJS)
-
-test/test_sudoku.o : test/test_sudoku.cpp
+$(OUTFILE_TEST) : test/test_all.cpp $(TEST_SRCS) $(OBJS)
+	$(CXX) $(CFLAGS) test/test_all.cpp -o $(OUTFILE_TEST) $(OBJS)
 
 test : $(OUTFILE_TEST)
-	./$(OUTFILE_TEST)
+	$(OUTFILE_TEST)
 
 run: $(OUTFILE)
 	cat in-1.txt | ./$(OUTFILE)

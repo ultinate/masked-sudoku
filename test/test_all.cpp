@@ -58,7 +58,7 @@ int runUnitTests()
         TEST(board[1] == 0x3);
 
         TEST_SECTION("parser");
- 
+        test_Parser();
         test_inputCharToInt(); 
         test_inputCharToMask(); 
         test_getIntFromMask();
@@ -68,25 +68,29 @@ int runUnitTests()
         test_getMaskFromInt();
         test_getNotMask();
 
+        TEST_SECTION("slicer");
+        test_HorizontalSlicer_Next();
+        test_VerticalSlicer_Next();
+        test_BoxSlicer_Next();
+        test_DiagonalSlicer_Next();
+
         TEST_SECTION("solver");
-        test_DetermineSolver_solveSlice();
-        test_DetermineSolver_solveSliceNoChange();
         test_EliminateSolver_solveSlice();
         test_EliminateSolver_solveSlice_2();
         test_EliminateSolver_solveSliceNoChange();
         test_EliminateSolver_eliminate();
+        test_DetermineSolver_solveSlice();
+        test_DetermineSolver_solveSliceNoChange();
         test_SolverInterface_transposeSliceTwice();
         test_SolverInterface_transposeSlice();
         test_SolverInterface_transposeSlice_simple();
         test_SolverInterface_copySlice();
-        test_SolverInterface_isSliceEqual();
-        test_SolverInterface_isSolved();
-
-        TEST_SECTION("slicer");
-        test_HorizontalSlicer_Next();
-        //test_VerticalSlicer_Next();
-        //test_BoxSlicer_Next();
-        //test_DiagonalSlicer_Next();
+        test_SolverInterface_isSliceEqual_equalAddresses();
+        test_SolverInterface_isSliceEqual_equalValues();
+        test_SolverInterface_isSliceSolved();
+        test_SolverInterface_isBoardSolved_solved();
+        test_SolverInterface_isBoardSolved_notSolved();
+        test_SolverInterface_isBoardSolved_illegal();
 
         TEST_GROUP("hex and binary representation"); 
         TEST(0x1 == 1); 
