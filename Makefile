@@ -1,6 +1,6 @@
 CXX=g++
 RM=rm -f
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g --coverage
 
 OUTFILE=sudoku.out
 OUTFILE_TEST=test/test_sudoku.out
@@ -34,3 +34,7 @@ run: $(OUTFILE)
 
 check : 
 	cppcheck .
+
+coverage :
+	lcov --capture --directory . --output-file coverage.info
+	genhtml coverage.info --output-directory out

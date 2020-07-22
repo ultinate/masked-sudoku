@@ -33,3 +33,9 @@
 *.exe
 *.out
 *.app
+
+# gcov coverage
+*.gcda
+*.gcno
+out/
+coverage.info
