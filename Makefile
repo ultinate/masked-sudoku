@@ -1,6 +1,6 @@
 CXX=g++
 RM=rm -f
-CFLAGS = -Wall -g --coverage
+CFLAGS = -Wall -g
 
 OUTFILE=sudoku.out
 OUTFILE_TEST=test/test_sudoku.out
@@ -16,6 +16,7 @@ $(OUTFILE) : main.cpp $(OBJS)
 clean:
 	$(RM) *.o *.d
 	$(RM) test/*.o test/*.d
+	$(RM) *.gcno *.gcda
 
 parser.o : parser.cpp parser.hpp
 
@@ -30,7 +31,7 @@ test : $(OUTFILE_TEST)
 	$(OUTFILE_TEST)
 
 run: $(OUTFILE)
-	cat in-1.txt | ./$(OUTFILE)
+	cat in-3.txt | ./$(OUTFILE)
 
 check : 
 	cppcheck .

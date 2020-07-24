@@ -7,25 +7,9 @@
 #include "visualizer.hpp"
 
 
-void printSlices(SlicerInterface *slicer) {
-    for (mask **slice = slicer->nextSlice(); !slicer->isDone(); slice = slicer->nextSlice()) {
-        std::cout << Visualizer::printSlice(slice) << std::endl;
-    }
-}
-
-void solveAllSlices(SlicerInterface *slicer, SolverInterface *solver) {
-    for (mask **slice = slicer->nextSlice();
-            !slicer->isDone();
-            slice = slicer->nextSlice()) {
-        solver->solveSlice(slice);
-    }
-}
-
 /**
  * Apply all solvers to all slices and loop as long as some progress
  * is made.
- *
- * TODO: Check validity of result in the end
  */
 bool solveBoard(mask *board) {
     int maxLoops = 1000;
@@ -50,7 +34,7 @@ bool solveBoard(mask *board) {
             // some sudokus don't implement the diagonal rule
             // slicer[3] = new DiagonalSlicer(board);
             for (int j = 0; j < slicerLength; j++) {
-                solveAllSlices(slicer[j], solver[i]);
+                solver[i]->solveAllSlices(slicer[j]);
             }
         }
         ++numLoops;
@@ -69,7 +53,7 @@ bool solveBoard(mask *board) {
 
 
 int main(int argc, char **argv) {
-    std::cout << "sudoku solver, v 0.0.2" << std::endl;
+    std::cout << "simple sudoku solver, v 0.0.3" << std::endl;
     std::string inputString;
     std::string tmpString;
     for (int i = 0; i < N; i++) {
@@ -90,21 +74,24 @@ int main(int argc, char **argv) {
 
     std::cout << "Solving board ..." << std::endl;
     solveBoard(board);
-    EliminateSolver es;
-    int globalResult = es.isBoardSolved(board);
+    int globalResult = SolverInterface::isBoardSolved(board);
+    int returnValue;
     if (globalResult) {
         std::cout << "Solved!" << std::endl;
+        returnValue = 0;
     }
     else {
         std::cout << "Not successful!" << std::endl;
+        returnValue = -1;
     }
 
     std::cout << "Output board: " << std::endl;
     std::cout << Visualizer::printBoard(board) << std::endl;
+
     // DEBUG
     // int i = 7;
     // std::cout << Visualizer::printBoardHighlight(board, i) << std::endl;
 
-    return globalResult;
+    return returnValue;
 }
 

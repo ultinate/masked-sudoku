@@ -7,34 +7,21 @@
 /* Parser unit tests */
 void test_Parser() {
     std::string inputString = 
-"..37..4.6"
-"...3.5..."
-"92..6.8.."
-".5...2..4"
-"..1...6.."
-"4..98..7."
-".3..71..8"
-"..4...7.2"
-"..6...1.3";
+        "..37..4.6"
+        "...3.5..."
+        "92..6.8.."
+        ".5...2..4"
+        "..1...6.."
+        "4..98..7."
+        ".3..71..8"
+        "..4...7.2"
+        "..6...1.3";
     Parser *p = new Parser(inputString);
     int parseResult = p->parse();
     TEST(parseResult == 0);
     mask *board = p->unsolvedBoard;
-    std::string expected =
-"-------------------------\n"
-"|     3 | 7     | 4   6 | \n"
-"|       | 3   5 |       | \n"
-"| 9 2   |   6   | 8     | \n"
-"-------------------------\n"
-"|   5   |     2 |     4 | \n"
-"|     1 |       | 6     | \n"
-"| 4     | 9 8   |   7   | \n"
-"-------------------------\n"
-"|   3   |   7 1 |     8 | \n"
-"|     4 |       | 7   2 | \n"
-"|     6 |       | 1   3 | \n"
-"-------------------------\n";
-    TEST(expected == Visualizer::printBoard(board));
+    std::string expected = inputString;
+    TEST(expected == Visualizer::printBoardMini(board));
 }
 
 void test_inputCharToInt() {

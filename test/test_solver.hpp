@@ -1,5 +1,7 @@
 #include <bitset>
 #include "../sTest/test.h"
+#include "../parser.hpp"
+#include "../slicer.hpp"
 #include "../solver.hpp"
 #include "../visualizer.hpp"
 
@@ -57,6 +59,207 @@ mask ** getTestSliceFull() {
         slicePtr[i] = &slice[i];
     }
     return slicePtr;
+}
+
+void test_OverlapSolver_boxToCol() {
+    std::string input =
+        "........."
+        "2........"
+        "3........"
+        "4........"
+        "5........"
+        "6........"
+        "7......89"
+        ".34......"
+        ".56......";
+    Parser *p = new Parser(input);
+    p->parse();
+    mask *board = p->unsolvedBoard;
+    SlicerInterface *slicer = new BoxSlicer(board);
+    SolverInterface *solver = new EliminateSolver();
+    solver->solveAllSlices(slicer);
+    std::string expected =
+        "1........"
+        "2........"
+        "3........"
+        "4........"
+        "5........"
+        "6........"
+        "7......89"
+        ".34......"
+        ".56......";
+    // FAILING
+    // TEST(expected == Visualizer::printBoardMini(board));
+    // std::cout << Visualizer::printBoardMini(board) << std::endl;
+}
+
+void test_EliminateSolver_box() {
+    std::string input =
+        "123......"
+        "456......"
+        "78......."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        ".........";
+    Parser *p = new Parser(input);
+    p->parse();
+    mask *board = p->unsolvedBoard;
+    SlicerInterface *slicer = new BoxSlicer(board);
+    SolverInterface *solver = new EliminateSolver();
+    solver->solveAllSlices(slicer);
+    std::string expected =
+        "123......"
+        "456......"
+        "789......"
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        ".........";
+    TEST(expected == Visualizer::printBoardMini(board));
+    // std::cout << Visualizer::printBoardMini(board) << std::endl;
+}
+
+void test_solvers_combined() {
+    std::string input =
+        "12...69.."
+        "45...9..."
+        "78......."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        ".........";
+    Parser *p = new Parser(input);
+    p->parse();
+    mask *board = p->unsolvedBoard;
+
+    SolverInterface *solver = new EliminateSolver();
+    SlicerInterface *slicer = new HorizontalSlicer(board);
+    solver->solveAllSlices(slicer);
+    
+    slicer = new BoxSlicer(board);
+    solver->solveAllSlices(slicer);
+
+    solver = new DetermineSolver();
+    slicer = new BoxSlicer(board);
+    solver->solveAllSlices(slicer);
+
+    solver = new EliminateSolver();
+    slicer = new BoxSlicer(board);
+    solver->solveAllSlices(slicer);
+
+    std::string expected =
+        "123..69.."
+        "456..9..."
+        "789......"
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        ".........";
+    TEST(expected == Visualizer::printBoardMini(board));
+}
+
+void test_EliminateSolver_horizontal() {
+    std::string inputString =
+        "12345678."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        ".........";
+    Parser *p = new Parser(inputString);
+    p->parse();
+    mask *board = p->unsolvedBoard;
+    SlicerInterface *slicer = new HorizontalSlicer(board);
+    SolverInterface *solver = new EliminateSolver();
+    solver->solveAllSlices(slicer);
+    std::string expected =
+        "123456789"
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        ".........";
+    TEST(expected == Visualizer::printBoardMini(board));
+}
+
+void test_EliminateSolver_vertical() {
+    std::string inputString =
+        "........."
+        "........2"
+        "........3"
+        "........4"
+        "........5"
+        "........6"
+        "........7"
+        "........8"
+        "........9";
+    Parser *p = new Parser(inputString);
+    p->parse();
+    mask *board = p->unsolvedBoard;
+    SlicerInterface *slicer = new VerticalSlicer(board);
+    SolverInterface *solver = new EliminateSolver();
+    solver->solveAllSlices(slicer);
+    std::string expected =
+        "........1"
+        "........2"
+        "........3"
+        "........4"
+        "........5"
+        "........6"
+        "........7"
+        "........8"
+        "........9";
+    TEST(expected == Visualizer::printBoardMini(board));
+}
+
+void test_EliminateSolver_horizontalVertical() {
+    std::string inputString =
+        "6........"
+        "........2"
+        "........3"
+        "........4"
+        "........5"
+        "1........"
+        "........7"
+        "........8"
+        "........9";
+    Parser *p = new Parser(inputString);
+    p->parse();
+    mask *board = p->unsolvedBoard;
+
+    SlicerInterface *slicer = new HorizontalSlicer(board);
+    SolverInterface *solver = new EliminateSolver();
+    solver->solveAllSlices(slicer);
+
+    slicer = new VerticalSlicer(board);
+    solver->solveAllSlices(slicer);
+
+    std::string expected =
+        "6.......1"
+        "........2"
+        "........3"
+        "........4"
+        "........5"
+        "1.......6"
+        "........7"
+        "........8"
+        "........9";
+    TEST(expected == Visualizer::printBoardMini(board));
 }
 
 void test_EliminateSolver_solveSlice() {

@@ -11,11 +11,14 @@ class Visualizer {
         Visualizer() {
         }
         static std::string maskToStr(mask m) {
+            return maskToStr(m, " ");
+        }
+        static std::string maskToStr(mask m, std::string empty) {
             unsigned int number = Parser::getIntFromMask(m);
             if (number > 0)
                 return std::to_string(number);
             else
-                return " ";
+                return empty;
         }
         static std::string maskToStr(mask m, unsigned int optional) {
             return maskToStr(m);
@@ -69,6 +72,13 @@ class Visualizer {
                     outString += "\n";
                 if ((i + 1) % (N*3) == 0)
                     outString += "-------------------------\n";
+            }
+            return outString;
+        }
+        static std::string printBoardMini(mask *board) {
+            std::string outString = "";
+            for (int i = 0; i < N*N; i++) {
+                outString += maskToStr(board[i], ".");
             }
             return outString;
         }

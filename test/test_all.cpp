@@ -75,6 +75,12 @@ int runUnitTests()
         test_DiagonalSlicer_Next();
 
         TEST_SECTION("solver");
+        test_solvers_combined();
+        test_OverlapSolver_boxToCol();
+        test_EliminateSolver_horizontal();
+        test_EliminateSolver_box();
+        test_EliminateSolver_vertical();
+        test_EliminateSolver_horizontalVertical();
         test_EliminateSolver_solveSlice();
         test_EliminateSolver_solveSlice_2();
         test_EliminateSolver_solveSliceNoChange();

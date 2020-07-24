@@ -2,12 +2,8 @@
 #define SOLVER_HPP
 
 #include "parser.hpp"
+#include "slicer.hpp"
 
-/**
- * Solving Sudoku
- *
- * Method: See README.md
- */
 
 /**
  * SolverInterface
@@ -29,7 +25,7 @@ class SolverInterface {
         /**
          * Helper to transpose a slice
          */
-        mask ** transposeSlice(mask **slice);
+        static mask ** transposeSlice(mask **slice);
 
         /**
          * Helper to copy sliceFrom to sliceTo
@@ -37,12 +33,12 @@ class SolverInterface {
          * Does not copy any values. Just points the elements in sliceTo to
          * the same addresses as sliceFrom.
          */
-        void copySlice(mask **sliceTo, mask **sliceFrom);
+        static void copySlice(mask **sliceTo, mask **sliceFrom);
 
         /**
          * Helper to check whether two slices are equal to every bit.
          */
-        bool isSliceEqual(mask **sliceLhs, mask **sliceRhs);
+        static bool isSliceEqual(mask **sliceLhs, mask **sliceRhs);
 
          /**
          * Helper to copy boardFrom to boardTo
@@ -50,7 +46,7 @@ class SolverInterface {
          * Does not copy any values. Just points the elements in boardTo to
          * the same addresses as boardFrom.
          */
-        void copyBoard(mask *boardTo, mask *boardFrom);
+        static void copyBoard(mask *boardTo, mask *boardFrom);
        
         /**
          * Helper to check whether two boards are equal to every bit.
@@ -58,7 +54,7 @@ class SolverInterface {
          * Just checks isEqual for a set of slices representing the
          * complete board (e.g. all horizonal ones).
          */
-        bool isBoardEqual(mask *boardLhs, mask *boardRhs);
+        static bool isBoardEqual(mask *boardLhs, mask *boardRhs);
 
         /**
          * Helper to check whether a slice is legally solved.
@@ -66,17 +62,26 @@ class SolverInterface {
          * This means that the slide has a number fixed for every
          * field and that no number is duplicated.
          */
-        bool isSliceSolved(mask **slice);
+        static bool isSliceSolved(mask **slice);
          
         /**
          * Helper to check whether a board is legally solved.
          *
          * Just checks all slices for isSolved().
          */
-        bool isBoardSolved(mask *board);
+        static bool isBoardSolved(mask *board);
+
+        /**
+         * Helper to apply a solver to all slices of a board
+         */
+        void solveAllSlices(SlicerInterface *slicer);
 
     private:
-        bool isSolvedDetail(mask **slice);
+        /**
+         * Helper to check whether a silce is solved (internal)
+         */
+        static bool isSolvedDetail(mask **slice);
+
 };
 
 
@@ -119,12 +124,13 @@ class EliminateSolver : public SolverInterface {
                           int exceptIndex);
 };
 
+
 /**
  * GuessSolver
  *
  * (not implemented yet)
  * If stuck, guess a single (possible) number and continue with 
- * the other two solvers until solved.
+ * the other solvers until solved.
  * If this gives a solved (and valid) board, we're done. Otherwise,
  * revert the guess and guess differently.
  */

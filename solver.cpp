@@ -79,8 +79,8 @@ bool SolverInterface::isBoardEqual(mask *lhs, mask *rhs) {
 }
 
 bool SolverInterface::isSliceSolved(mask **slice) {
-    bool isFilled = isSolvedDetail(slice);
-    bool isCorrect = isSolvedDetail(transposeSlice(slice));
+    bool isFilled = SolverInterface::isSolvedDetail(slice);
+    bool isCorrect = SolverInterface::isSolvedDetail(transposeSlice(slice));
     if (isFilled && isCorrect) {
         return true;
     }
@@ -111,6 +111,14 @@ bool SolverInterface::isBoardSolved(mask *board) {
         }
     }
     return true;
+}
+
+void SolverInterface::solveAllSlices(SlicerInterface *slicer) {
+    for (mask **slice = slicer->nextSlice();
+            !slicer->isDone();
+            slice = slicer->nextSlice()) {
+        solveSlice(slice);
+    }
 }
 
 bool SolverInterface::isSolvedDetail(mask **slice) {
