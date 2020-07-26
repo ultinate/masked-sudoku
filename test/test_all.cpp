@@ -76,7 +76,6 @@ int runUnitTests()
 
         TEST_SECTION("solver");
         test_solvers_combined();
-        test_OverlapSolver_boxToCol();
         test_EliminateSolver_horizontal();
         test_EliminateSolver_box();
         test_EliminateSolver_vertical();
@@ -91,6 +90,7 @@ int runUnitTests()
         test_SolverInterface_transposeSlice();
         test_SolverInterface_transposeSlice_simple();
         test_SolverInterface_copySlice();
+        test_SolverInterface_deepCopySlice();
         test_SolverInterface_isSliceEqual_equalAddresses();
         test_SolverInterface_isSliceEqual_equalValues();
         test_SolverInterface_isSliceSolved();

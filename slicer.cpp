@@ -4,8 +4,23 @@
 
 
 /**
+ * SlicerInterface
+ */
+void SlicerInterface::printInfo(mask *board) {
+    // std::cout << getName() << ". " <<
+        // "Board at: " << board << ". [0]: " << board[0] <<
+        // std::endl;
+}
+
+/**
  * HorizontalSlicer
  */
+HorizontalSlicer::HorizontalSlicer(mask *board)
+    : board(board) {
+    row = 0;
+    printInfo(board);
+}
+
 std::string HorizontalSlicer::getName() {
     return "Horizontal slices";
 }
@@ -23,10 +38,19 @@ bool HorizontalSlicer::isDone() {
     return row > N;
 }
 
+void HorizontalSlicer::reset() {
+    row = 0;
+}
+
 
 /**
  * VerticalSlicer
  */
+VerticalSlicer::VerticalSlicer(mask *board) : board(board) {
+    col = 0;
+    printInfo(board);
+}
+
 std::string VerticalSlicer::getName() {
     return "Vertical slices";
 }
@@ -44,10 +68,19 @@ bool VerticalSlicer::isDone() {
     return col > N;
 }
 
+void VerticalSlicer::reset() {
+    col = 0;
+}
+
 
 /**
  * BoxSlicer
  */
+BoxSlicer::BoxSlicer(mask *board) : board(board) {
+    field = 0;
+    printInfo(board);
+}
+
 std::string BoxSlicer::getName() {
     return "Box slices";
 }
@@ -70,10 +103,19 @@ bool BoxSlicer::isDone() {
     return field > N;
 }
 
+void BoxSlicer::reset() {
+    field = 0;
+}
+
 
 /**
  * DiagonalSlicer
  */
+DiagonalSlicer::DiagonalSlicer(mask *board) : board(board) {
+    selection = 0;
+    printInfo(board);
+}
+
 std::string DiagonalSlicer::getName() {
     return "Diagonal slices";
 }
@@ -98,5 +140,9 @@ mask ** DiagonalSlicer::nextSlice() {
 
 bool DiagonalSlicer::isDone() {
     return selection > 2;
+}
+
+void DiagonalSlicer::reset() {
+    selection = 0;
 }
 

@@ -8,42 +8,39 @@
 
 
 /**
- * Apply all solvers to all slices and loop as long as some progress
- * is made.
+ * Apply all solvers to all slices.
+ *
+ * This method loops as long as some progress is made. A maximum of N*N*N = 729 loops
+ * are needed if we assume that, in each loop, at least one bit changes.
  */
 bool solveBoard(mask *board) {
-    int maxLoops = 1000;
-    int infoLoops = 10;
-    bool hasChanged = true;
+    int maxLoops = N * N * N;
+    int infoLoops = 1;
     int solverLength = 2;
     int slicerLength = 3;
     SolverInterface *solver[solverLength];
     SlicerInterface *slicer[slicerLength];
-    DetermineSolver ds;
-    EliminateSolver es;
-    solver[0] = &ds;
-    solver[1] = &es;
-    int numLoops = 0;
-    while (hasChanged) {
-        mask *boardCopy = new mask[N*N];
-        es.copyBoard(boardCopy, board);
+    solver[0] = new DetermineSolver();
+    solver[1] = new EliminateSolver();
+    slicer[0] = new HorizontalSlicer(board);
+    slicer[1] = new VerticalSlicer(board);
+    slicer[2] = new BoxSlicer(board);
+    // some sudokus don't implement the diagonal rule, so let's not use DiagonalSlicer
+    // slicer[3] = new DiagonalSlicer(board);
+    int numLoops;
+    for (numLoops = 0; numLoops < maxLoops; numLoops++) {
         for (int i = 0; i < solverLength; i++) {
-            slicer[0] = new HorizontalSlicer(board);
-            slicer[1] = new VerticalSlicer(board);
-            slicer[2] = new BoxSlicer(board);
-            // some sudokus don't implement the diagonal rule
-            // slicer[3] = new DiagonalSlicer(board);
             for (int j = 0; j < slicerLength; j++) {
                 solver[i]->solveAllSlices(slicer[j]);
+                slicer[j]->reset();
             }
         }
         ++numLoops;
-        hasChanged = !es.isBoardEqual(boardCopy, board);
         if (numLoops % infoLoops == 0) {
             std::cout << numLoops << " loops and counting ..." << std::endl;
+            std::cout << Visualizer::printBoard(board) << std::endl;
         }
-        if (numLoops >= maxLoops) {
-            std::cout << numLoops << " reached. Exiting." << std::endl;
+        if (SolverInterface::isBoardSolved(board)) {
             break;
         }
     }
@@ -89,7 +86,7 @@ int main(int argc, char **argv) {
     std::cout << Visualizer::printBoard(board) << std::endl;
 
     // DEBUG
-    // int i = 7;
+    // int i = 6;
     // std::cout << Visualizer::printBoardHighlight(board, i) << std::endl;
 
     return returnValue;
