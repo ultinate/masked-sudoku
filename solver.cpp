@@ -47,6 +47,12 @@ void SolverInterface::copySlice(mask **sliceTo, mask **sliceFrom) {
     }
 }
 
+void SolverInterface::deepCopySlice(mask **sliceTo, mask **sliceFrom) {
+    for (int i = 0; i < N; i++) {
+        *sliceTo[i] = *sliceFrom[i];
+    }
+}
+
 bool SolverInterface::isSliceEqual(mask **sliceLhs, mask **sliceRhs) {
     for (int i = 0; i < N; i++) {
         if (*sliceLhs[i] != *sliceRhs[i]) {
@@ -136,16 +142,17 @@ bool SolverInterface::isSolvedDetail(mask **slice) {
  */
 
 void DetermineSolver::solveSlice(mask **slice) {
-    //std::cout << "DetermineSolver before: " << Visualizer::printSlice(slice) << std::endl;
+    // std::cout << "DetermineSolver before: " << Visualizer::printSlice(slice) << std::endl;
     EliminateSolver es;
     mask **sliceT = es.transposeSlice(slice);
-    //std::cout << "DetermineSolver T: " << Visualizer::printSlice(sliceT) << std::endl;
+    // std::cout << "DetermineSolver T:      " << Visualizer::printSlice(sliceT) << std::endl;
     es.solveSlice(sliceT);
     mask **sliceAfter = es.transposeSlice(sliceT);
-    //std::cout << "DetermineSolver after:  " << Visualizer::printSlice(sliceAfter) << std::endl;
     bool hasChanged = !isSliceEqual(slice, sliceAfter);
     if (hasChanged) {
-        copySlice(slice, sliceAfter);
+        // std::cout << "DetermineSolver after:  " << Visualizer::printSlice(sliceAfter) << std::endl;
+        deepCopySlice(slice, sliceAfter);
+        // std::cout << "DetermineSolver after2: " << Visualizer::printSlice(slice) << std::endl;
     }
 }
 

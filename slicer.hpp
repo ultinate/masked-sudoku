@@ -16,6 +16,8 @@ class SlicerInterface {
         virtual mask ** nextSlice() = 0;
         virtual bool isDone() = 0;
         virtual std::string getName() = 0;
+        virtual void reset() = 0;
+        virtual void printInfo(mask *board);
 };
 
 
@@ -24,14 +26,12 @@ class HorizontalSlicer : public SlicerInterface {
         mask *board;
         int row;
     public:
-        HorizontalSlicer(mask *board) : board(board) {
-            row = 0;
-            //std::cout << getName() << ". Board at: " << this->board << ". [0]: " << board[0] << std::endl;
-        }
+        HorizontalSlicer(mask *board);
         ~HorizontalSlicer() {}
         mask ** nextSlice();
         bool isDone();
         std::string getName();
+        void reset();
 };
 
 
@@ -40,14 +40,12 @@ class VerticalSlicer : public SlicerInterface {
         mask *board;
         int col;
     public:
-        VerticalSlicer(mask *board) : board(board) {
-            col = 0;
-            //std::cout << getName() << ". Board at: " << this->board << ". [0]: " << board[0] << std::endl;
-        }
+        VerticalSlicer(mask *board);
         ~VerticalSlicer() {}
         mask ** nextSlice();
         bool isDone();
         std::string getName();
+        void reset();
 };
 
 
@@ -56,14 +54,12 @@ class BoxSlicer : public SlicerInterface {
         mask *board;
         int field;
     public:
-        BoxSlicer(mask *board) : board(board) {
-            field = 0;
-            //std::cout << getName() << ". Board at: " << this->board << ". [0]: " << board[0] << std::endl;
-        }
+        BoxSlicer(mask *board);
         ~BoxSlicer() {}
         mask ** nextSlice();
         bool isDone();
         std::string getName();
+        void reset();
 };
 
 class DiagonalSlicer : public SlicerInterface {
@@ -71,14 +67,12 @@ class DiagonalSlicer : public SlicerInterface {
         mask *board;
         int selection;
     public:
-        DiagonalSlicer(mask *board) : board(board) {
-            selection = 0;
-            //std::cout << getName() << ". Board at: " << this->board << ". [0]: " << board[0] << std::endl;
-        }
+        DiagonalSlicer(mask *board);
         ~DiagonalSlicer() {}
         mask ** nextSlice();
         bool isDone();
         std::string getName();
+        void reset();
 };
 
 #endif

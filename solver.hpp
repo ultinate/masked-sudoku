@@ -36,6 +36,14 @@ class SolverInterface {
         static void copySlice(mask **sliceTo, mask **sliceFrom);
 
         /**
+         * Helper to copy values in sliceFrom to sliceTo
+         *
+         * Does not change any pointers. Just (deep) copies values to which the
+         * elements in sliceFrom point to to the addresses of sliceTo.
+         */
+        static void deepCopySlice(mask **sliceTo, mask **sliceFrom);
+
+        /**
          * Helper to check whether two slices are equal to every bit.
          */
         static bool isSliceEqual(mask **sliceLhs, mask **sliceRhs);
