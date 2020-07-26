@@ -61,6 +61,41 @@ mask ** getTestSliceFull() {
     return slicePtr;
 }
 
+void test_OverlapSolver_boxToCol() {
+    // TODO: Implement
+    TEST(false);
+    /*
+    std::string input =
+        "........."
+        "2........"
+        "3........"
+        "4........"
+        "5........"
+        "6........"
+        "7......89"
+        ".34......"
+        ".56......";
+    Parser *p = new Parser(input);
+    p->parse();
+    mask *board = p->unsolvedBoard;
+    SlicerInterface *slicer = new BoxSlicer(board);
+    SolverInterface *solver = new OverlapSolver();
+    solver->solveAllSlices(slicer);
+    std::string expected =
+        "1........"
+        "2........"
+        "3........"
+        "4........"
+        "5........"
+        "6........"
+        "7......89"
+        ".34......"
+        ".56......";
+    TEST(expected == Visualizer::printBoardMini(board));
+    std::cout << Visualizer::printBoardMini(board) << std::endl;
+    */
+}
+
 void test_EliminateSolver_box() {
     std::string input =
         "123......"

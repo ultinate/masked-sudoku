@@ -76,6 +76,7 @@ int runUnitTests()
 
         TEST_SECTION("solver");
         test_solvers_combined();
+        test_OverlapSolver_boxToCol();
         test_EliminateSolver_horizontal();
         test_EliminateSolver_box();
         test_EliminateSolver_vertical();
