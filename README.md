@@ -30,14 +30,26 @@ Example input sudoku:
 
 Use `make test` to run unit tests.
 
+# Basis
+
+A sudoku must follow these rules:
+
+  - A square board consists of 9 x 9 positions. When solved, each position
+    is filled with an integer of the interval [1, 9].
+  - In each horizontal row, vertical column and selected 3 x 3 sub-squares,
+    each number must appear exactly once.
+  - Some sudokus also implement a further rule: In both main diagonals,
+    each number must appear exactly once.
+
+
 # Method
 
-  - Slice board into 29 different slices (horizontal, vertical,
-    diagonal, small squares).
+  - Slice board into 27 different slices (horizontal, vertical, sub-squares
+    "boxes"). We do not consider the two diagonal slices.
   - Run different solvers on all slices as long as something changes.
-  - **DetermineSolver**: if a number only fits into one field of a slice,
+  - **DetermineSolver**: If a number only fits into one field of a slice,
     fix this number in that field.
-  - **EliminateSolver**: if a number is fixed in a slice, eliminate the
+  - **EliminateSolver**: If a number is fixed in a slice, eliminate the
     possibility of it occuring in all other fields of this slice.
   - **GuessSolver** (not implemented yet): If stuck, guess a single number
     in a slice and continue with the other two solvers until solved.
