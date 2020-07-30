@@ -26,6 +26,7 @@ mask ** getTestSlice() {
     }
     return slicePtr;
 }
+
 mask ** getTestSliceRow() {
     mask *slice = new mask[N];
     slice[0] = 0b111101111;
@@ -43,6 +44,7 @@ mask ** getTestSliceRow() {
     }
     return slicePtr;
 }
+
 mask ** getTestSliceFull() {
     mask *slice = new mask[N];
     slice[0] = 0b111111111;
@@ -61,7 +63,7 @@ mask ** getTestSliceFull() {
     return slicePtr;
 }
 
-void test_OverlapSolver_boxToCol() {
+void test_OverlapSolver_boxToColumn() {
     // TODO: Implement
     TEST(false);
     /*
