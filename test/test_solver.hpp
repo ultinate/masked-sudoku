@@ -335,21 +335,21 @@ void test_DetermineSolver_solveSlice() {
 void test_DetermineSolver_solveSliceNoChange() {
     mask **slice = getTestSliceFull();
     mask **slicePtr = slice;
-    DetermineSolver ds;
     mask **sliceBefore = new mask*[N];
-    ds.copySlice(sliceBefore, slicePtr);
+    BoardManager::copySlice(sliceBefore, slicePtr);
+    DetermineSolver ds;
     ds.solveSlice(slicePtr);
-    TEST(ds.isSliceEqual(slicePtr, sliceBefore));
+    TEST(BoardManager::isSliceEqual(slicePtr, sliceBefore));
 }
  
 void test_EliminateSolver_solveSliceNoChange() {
     mask **slice = getTestSliceFull();
     mask **slicePtr = slice;
     mask **sliceBefore = new mask*[N];
+    BoardManager::copySlice(sliceBefore, slicePtr);
     EliminateSolver es;
-    es.copySlice(sliceBefore, slicePtr);
     es.solveSlice(slicePtr);
-    TEST(es.isSliceEqual(slicePtr, sliceBefore));
+    TEST(BoardManager::isSliceEqual(slicePtr, sliceBefore));
 }
 
 void test_EliminateSolver_eliminate() {
@@ -393,8 +393,7 @@ void test_EliminateSolver_eliminate() {
 
 void test_SolverInterface_transposeSlice() {
     mask **slice = getTestSlice();
-    EliminateSolver es;
-    mask **sliceT = es.transposeSlice(slice);
+    mask **sliceT = BoardManager::transposeSlice(slice);
     TEST(*sliceT[0] == 0b001111111);
     TEST(*sliceT[1] == 0b000001001);
     TEST(*sliceT[2] == 0b000001001);
@@ -407,15 +406,13 @@ void test_SolverInterface_transposeSlice() {
 
 void test_SolverInterface_transposeSliceTwice() {
     mask **slice = getTestSlice();
-    EliminateSolver es;
-    mask **sliceT = es.transposeSlice(slice);
-    mask **sliceTT = es.transposeSlice(sliceT);
-    TEST(es.isSliceEqual(slice, sliceTT));
+    mask **sliceT = BoardManager::transposeSlice(slice);
+    mask **sliceTT = BoardManager::transposeSlice(sliceT);
+    TEST(BoardManager::isSliceEqual(slice, sliceTT));
 }
 
 void test_SolverInterface_transposeSlice_simple() {
     mask **slice = getTestSlice();
-    EliminateSolver es;
     *slice[0] = 0b111101111;
     *slice[1] = 0b111101111;
     *slice[2] = 0b111101111;
@@ -425,7 +422,7 @@ void test_SolverInterface_transposeSlice_simple() {
     *slice[6] = 0b111101111;
     *slice[7] = 0b111101111;
     *slice[8] = 0b111101111;
-    mask **sliceT = es.transposeSlice(slice);
+    mask **sliceT = BoardManager::transposeSlice(slice);
     TEST(*sliceT[0] == 0b111111111);
     TEST(*sliceT[1] == 0b111111111);
     TEST(*sliceT[2] == 0b111111111);
@@ -449,11 +446,10 @@ void test_SolverInterface_copySlice() {
     TEST(*slice[7] == 0b111111111);
     TEST(*slice[8] == 0b111111111);
 
-    EliminateSolver es;
     mask **sliceCopy = new mask*[N];
-    es.copySlice(sliceCopy, slice);
+    BoardManager::copySlice(sliceCopy, slice);
     TEST(*sliceCopy[0] == 0b111111111);
-    TEST(es.isSliceEqual(slice, sliceCopy));
+    TEST(BoardManager::isSliceEqual(slice, sliceCopy));
 }
 
 void test_SolverInterface_deepCopySlice() {
@@ -464,21 +460,17 @@ void test_SolverInterface_deepCopySlice() {
 void test_SolverInterface_isSliceEqual_equalAddresses() {
     mask **slice = getTestSliceFull();
     mask **sliceCopy = new mask*[N];
-
-    EliminateSolver es;
-    es.copySlice(sliceCopy, slice);
-    // std::cout << "slice: " << Visualizer::printSlice(slice) << std::endl;
-    TEST(es.isSliceEqual(slice, sliceCopy));
+    BoardManager::copySlice(sliceCopy, slice);
+    TEST(BoardManager::isSliceEqual(slice, sliceCopy));
 }
 
 void test_SolverInterface_isSliceEqual_equalValues() {
     mask **slice = getTestSliceFull();
     mask **sliceCopy = getTestSliceFull();
 
-    EliminateSolver es;
-    TEST(es.isSliceEqual(slice, sliceCopy));
+    TEST(BoardManager::isSliceEqual(slice, sliceCopy));
     *sliceCopy[0] = 0b111111110;
-    TEST(!es.isSliceEqual(slice, sliceCopy));
+    TEST(!BoardManager::isSliceEqual(slice, sliceCopy));
 }
 
 void test_SolverInterface_isSliceSolved() {
@@ -496,18 +488,17 @@ void test_SolverInterface_isSliceSolved() {
     for (int i = 0; i < N; i++) {
         slicePtr[i] = &slice[i];
     }
-    EliminateSolver es;
 
     // not solved
-    TEST(!es.isSliceSolved(slicePtr));
+    TEST(!BoardManager::isSliceSolved(slicePtr));
     
     // correctly solved
     slice[0] = 0b100000000;
-    TEST(es.isSliceSolved(slicePtr));
+    TEST(BoardManager::isSliceSolved(slicePtr));
 
     // solved, but illegal
     slice[0] = 0b000000001;
-    TEST(!es.isSliceSolved(slicePtr));
+    TEST(!BoardManager::isSliceSolved(slicePtr));
 }
 
 void test_SolverInterface_isBoardSolved_solved() {
@@ -525,8 +516,7 @@ void test_SolverInterface_isBoardSolved_solved() {
     int parseResult = p->parse();
     TEST(parseResult == 0);
     mask *board = p->unsolvedBoard;
-    EliminateSolver es;
-    TEST(es.isBoardSolved(board));
+    TEST(BoardManager::isBoardSolved(board));
 }
 
 void test_SolverInterface_isBoardSolved_notSolved() {
@@ -544,8 +534,7 @@ void test_SolverInterface_isBoardSolved_notSolved() {
     int parseResult = p->parse();
     TEST(parseResult == 0);
     mask *board = p->unsolvedBoard;
-    EliminateSolver es;
-    TEST(!es.isBoardSolved(board));
+    TEST(!BoardManager::isBoardSolved(board));
 }
 
 void test_SolverInterface_isBoardSolved_illegal() {
@@ -563,7 +552,6 @@ void test_SolverInterface_isBoardSolved_illegal() {
     int parseResult = p->parse();
     TEST(parseResult == 0);
     mask *board = p->unsolvedBoard;
-    EliminateSolver es;
-    TEST(!es.isBoardSolved(board));
+    TEST(!BoardManager::isBoardSolved(board));
 }
 

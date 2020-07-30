@@ -63,6 +63,7 @@ int runUnitTests()
         test_inputCharToMask(); 
         test_getIntFromMask();
         test_isOnlyOneBit();
+        test_isBitSet();
         test_countBits();
         test_log2();
         test_getMaskFromInt();

@@ -79,6 +79,15 @@ void test_isOnlyOneBit() {
     TEST(false == Parser::isOnlyOneBit(0b111111111));
 }
 
+void test_isBitSet() {
+    TEST(true == Parser::isBitSet(0b000000001, 1));
+    TEST(false == Parser::isBitSet(0b000000001, 9));
+    TEST(true == Parser::isBitSet(0b100000000, 9));
+    TEST(false == Parser::isBitSet(0b100000000, 1));
+    TEST(false == Parser::isBitSet(0b101000000, 3));
+    TEST(true == Parser::isBitSet(0b111111111, 3));
+}
+
 void test_countBits() {
     TEST(1 == Parser::countBits(0b000000001));
     TEST(1 == Parser::countBits(0b100000000));

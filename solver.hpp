@@ -6,22 +6,12 @@
 
 
 /**
- * SolverInterface
+ * BoardManager
  *
- * Have a common interface for all solvers.
- * This class is not intended to be instantiated.
+ * Provide general functions to interact with a board and solvers.
  */
-class SolverInterface {
+class BoardManager {
     public:
-        SolverInterface() {}
-        ~SolverInterface();
-        /**
-         * The slice solving magic is happening here.
-         *
-         * Tries to solve a slice in-place.
-         */
-        virtual void solveSlice(mask **slice) = 0;
-
         /**
          * Helper to transpose a slice
          */
@@ -79,17 +69,50 @@ class SolverInterface {
          */
         static bool isBoardSolved(mask *board);
 
-        /**
-         * Helper to apply a solver to all slices of a board
-         */
-        void solveAllSlices(SlicerInterface *slicer);
-
     private:
         /**
          * Helper to check whether a silce is solved (internal)
          */
         static bool isSolvedDetail(mask **slice);
+};
 
+
+/**
+ * SolverInterface
+ *
+ * Have a common interface for all solvers.
+ * This class is not intended to be instantiated.
+ */
+class SolverInterface {
+    public:
+        SolverInterface() {}
+        ~SolverInterface();
+        /**
+         * The slice solving magic is happening here.
+         *
+         * Tries to solve a slice in-place.
+         * TODO: Make this private
+         */
+        virtual void solveSlice(mask **slice) = 0;
+
+        /**
+         * Returns name of class
+         *
+         * Mostly used for debugging.
+         */
+        virtual std::string getName() = 0;
+
+        /**
+         * The board solving magic is happening here.
+         *
+         * Tries to solve a board in-place.
+         */
+        virtual void solveBoard(mask *board) = 0;
+
+        /**
+         * Helper to apply a solver to all slices of a board
+         */
+        void solveAllSlices(SlicerInterface *slicer);
 };
 
 
@@ -103,12 +126,9 @@ class DetermineSolver : public SolverInterface {
     public:
         DetermineSolver() {}
         ~DetermineSolver() {}
-        /**
-         * The slice solving magic is happening here.
-         *
-         * Tries to solve a slice in-place.
-         */
         void solveSlice(mask **slice);
+        void solveBoard(mask *board);
+        std::string getName() { return "DetermineSolver"; }
 };
 
 
@@ -122,14 +142,38 @@ class EliminateSolver : public SolverInterface {
     public:
         EliminateSolver() {}
         ~EliminateSolver() {}
-        /**
-         * The slice solving magic is happening here.
-         *
-         * Tries to solve a slice in-place.
-         */
         void solveSlice(mask **slice);
+        void solveBoard(mask *board);
+        std::string getName() { return "EliminateSolver"; }
+
+        // TODO: Make the following methods private (note: unit tests)
         void eliminate(mask **slice, unsigned int valueToEliminate,
                           int exceptIndex);
+};
+
+
+/** OverlapSolver
+ *
+ * If in a slice _s1_, all possible locations of a
+ * certain number lie within another slice _s2_, eliminate that number
+ * from other locations inside _s2_ which do not overlap with _s1_.
+ */
+class OverlapSolver : public SolverInterface {
+    public:
+        OverlapSolver() {}
+        ~OverlapSolver() {}
+        void solveSlice(mask **slice);
+        void solveBoard(mask *board);
+        std::string getName() { return "OverlapSolver"; }
+        
+        // TODO: Make the following methods private (note: unit tests)
+        void solveSlice(mask **sliceOrigin, mask **sliceTarget);
+        void solveBoard(mask *board, SlicerInterface *origin,
+                SlicerInterface *target);
+        void eliminate(mask **slice, unsigned int valueToEliminate,
+                mask **exceptMasks, unsigned int exceptMasksLength);
+        bool isInsideList(mask *needle, mask **haystack,
+                unsigned int haystackLength);
 };
 
 

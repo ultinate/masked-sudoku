@@ -20,23 +20,17 @@ bool solveBoard(mask *board, bool isVerbose) {
     int maxLoops = N * N * N;
     int infoLoops = 1;
     int solverLength = 2;
-    int slicerLength = 3;
     SolverInterface *solver[solverLength];
     solver[0] = new DetermineSolver();
     solver[1] = new EliminateSolver();
-    SlicerInterface *slicer[slicerLength];
-    slicer[0] = new HorizontalSlicer(board);
-    slicer[1] = new VerticalSlicer(board);
-    slicer[2] = new BoxSlicer(board);
+    // DEBUG
+    // solver[2] = new OverlapSolver();
     int numLoops;
     for (numLoops = 0; numLoops < maxLoops; numLoops++) {
         for (int i = 0; i < solverLength; i++) {
-            for (int j = 0; j < slicerLength; j++) {
-                solver[i]->solveAllSlices(slicer[j]);
-                slicer[j]->reset();
-            }
+            solver[i]->solveBoard(board);
         }
-        if (SolverInterface::isBoardSolved(board)) {
+        if (BoardManager::isBoardSolved(board)) {
             break;
         }
         if (isVerbose and (numLoops % infoLoops == 0)) {
@@ -84,7 +78,7 @@ int main(int argc, char **argv) {
 
     std::cout << "Solving board ..." << std::endl;
     solveBoard(board, isVerbose);
-    int globalResult = SolverInterface::isBoardSolved(board);
+    int globalResult = BoardManager::isBoardSolved(board);
     int returnValue;
     if (globalResult) {
         std::cout << "Solved!" << std::endl;
