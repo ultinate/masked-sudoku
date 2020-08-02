@@ -88,14 +88,6 @@ class SolverInterface {
         SolverInterface() {}
         ~SolverInterface();
         /**
-         * The slice solving magic is happening here.
-         *
-         * Tries to solve a slice in-place.
-         * TODO: Make this private
-         */
-        virtual void solveSlice(mask **slice) = 0;
-
-        /**
          * Returns name of class
          *
          * Mostly used for debugging.
@@ -108,11 +100,30 @@ class SolverInterface {
          * Tries to solve a board in-place.
          */
         virtual void solveBoard(mask *board) = 0;
+};
+
+/**
+ * SliceSolverInterface
+ *
+ * A type of solver which operates slice-wise
+ */
+class SliceSolverInterface : public SolverInterface {
+    public:
+        SliceSolverInterface() {}
+        ~SliceSolverInterface() {}
+        /**
+         * The slice solving magic is happening here.
+         *
+         * Tries to solve a slice in-place.
+         * TODO: Make this private
+         */
+        virtual void solveSlice(mask **slice) = 0;
 
         /**
          * Helper to apply a solver to all slices of a board
          */
         void solveAllSlices(SlicerInterface *slicer);
+        void solveBoard(mask *board);
 };
 
 
@@ -122,12 +133,11 @@ class SolverInterface {
  * If a number only fits into one field of a slice,
  * fix this number in that field.
  */
-class DetermineSolver : public SolverInterface {
+class DetermineSolver : public SliceSolverInterface {
     public:
         DetermineSolver() {}
         ~DetermineSolver() {}
         void solveSlice(mask **slice);
-        void solveBoard(mask *board);
         std::string getName() { return "DetermineSolver"; }
 };
 
@@ -138,12 +148,11 @@ class DetermineSolver : public SolverInterface {
  * If a number is fixed in a slice, eliminate the
  * possibility of it occuring in all other fields of this slice.
  */
-class EliminateSolver : public SolverInterface {
+class EliminateSolver : public SliceSolverInterface {
     public:
         EliminateSolver() {}
         ~EliminateSolver() {}
         void solveSlice(mask **slice);
-        void solveBoard(mask *board);
         std::string getName() { return "EliminateSolver"; }
 
         // TODO: Make the following methods private (note: unit tests)

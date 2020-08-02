@@ -129,7 +129,12 @@ bool BoardManager::isSolvedDetail(mask **slice) {
 SolverInterface::~SolverInterface() {
 }
 
-void SolverInterface::solveAllSlices(SlicerInterface *slicer) {
+
+/**
+ * SliceSolverInterface
+ */
+
+void SliceSolverInterface::solveAllSlices(SlicerInterface *slicer) {
     for (mask **slice = slicer->nextSlice();
             !slicer->isDone();
             slice = slicer->nextSlice()) {
@@ -154,18 +159,6 @@ void DetermineSolver::solveSlice(mask **slice) {
     }
 }
 
-void DetermineSolver::solveBoard(mask *board) {
-    int slicerLength = 3;
-    SlicerInterface *slicer[slicerLength];
-    slicer[0] = new HorizontalSlicer(board);
-    slicer[1] = new VerticalSlicer(board);
-    slicer[2] = new BoxSlicer(board);
-    for (int j = 0; j < slicerLength; j++) {
-        solveAllSlices(slicer[j]);
-        slicer[j]->reset();
-    }
-}
-
 
 /**
  * EliminateSolver
@@ -180,8 +173,7 @@ void EliminateSolver::solveSlice(mask **slice) {
     }
 }
 
-// TODO: This method is duplicate. Fix.
-void EliminateSolver::solveBoard(mask *board) {
+void SliceSolverInterface::solveBoard(mask *board) {
     int slicerLength = 3;
     SlicerInterface *slicer[slicerLength];
     slicer[0] = new HorizontalSlicer(board);

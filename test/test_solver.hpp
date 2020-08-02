@@ -81,7 +81,7 @@ void test_OverlapSolver_boxToColumn() {
     p->parse();
     mask *board = p->unsolvedBoard;
     SlicerInterface *slicer = new BoxSlicer(board);
-    SolverInterface *solver = new OverlapSolver();
+    SliceSolverInterface *solver = new OverlapSolver();
     solver->solveAllSlices(slicer);
     std::string expected =
         "1........"
@@ -113,7 +113,7 @@ void test_EliminateSolver_box() {
     p->parse();
     mask *board = p->unsolvedBoard;
     SlicerInterface *slicer = new BoxSlicer(board);
-    SolverInterface *solver = new EliminateSolver();
+    SliceSolverInterface *solver = new EliminateSolver();
     solver->solveAllSlices(slicer);
     std::string expected =
         "123......"
@@ -144,8 +144,8 @@ void test_solvers_combined() {
     p->parse();
     mask *board = p->unsolvedBoard;
 
-    SolverInterface *solver = new EliminateSolver();
     SlicerInterface *slicer = new HorizontalSlicer(board);
+    SliceSolverInterface *solver = new EliminateSolver();
     solver->solveAllSlices(slicer);
     
     slicer = new BoxSlicer(board);
@@ -187,7 +187,7 @@ void test_EliminateSolver_horizontal() {
     p->parse();
     mask *board = p->unsolvedBoard;
     SlicerInterface *slicer = new HorizontalSlicer(board);
-    SolverInterface *solver = new EliminateSolver();
+    SliceSolverInterface *solver = new EliminateSolver();
     solver->solveAllSlices(slicer);
     std::string expected =
         "123456789"
@@ -217,7 +217,7 @@ void test_EliminateSolver_vertical() {
     p->parse();
     mask *board = p->unsolvedBoard;
     SlicerInterface *slicer = new VerticalSlicer(board);
-    SolverInterface *solver = new EliminateSolver();
+    SliceSolverInterface *solver = new EliminateSolver();
     solver->solveAllSlices(slicer);
     std::string expected =
         "........1"
@@ -248,7 +248,7 @@ void test_EliminateSolver_horizontalVertical() {
     mask *board = p->unsolvedBoard;
 
     SlicerInterface *slicer = new HorizontalSlicer(board);
-    SolverInterface *solver = new EliminateSolver();
+    SliceSolverInterface *solver = new EliminateSolver();
     solver->solveAllSlices(slicer);
 
     slicer = new VerticalSlicer(board);
