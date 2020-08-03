@@ -19,7 +19,7 @@ void test_Parser() {
     Parser *p = new Parser(inputString);
     int parseResult = p->parse();
     TEST(parseResult == 0);
-    mask *board = p->unsolvedBoard;
+    mask *board = p->getBoard();
     std::string expected = inputString;
     TEST(expected == Visualizer::printBoardMini(board));
 }

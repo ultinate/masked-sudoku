@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
         std::cout << "Parsing not successful. Terminating." << std::endl;
         return parseResult;
     }
-    mask *board = p->unsolvedBoard;
+    mask *board = p->getBoard();
 
     std::cout << "Input board: " << std::endl;
     std::cout << Visualizer::printBoard(board) << std::endl;

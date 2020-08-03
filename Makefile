@@ -1,6 +1,6 @@
 CXX=g++
 RM=rm -f
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g --coverage
 
 OUTFILE=sudoku.out
 OUTFILE_TEST=test/test_sudoku.out

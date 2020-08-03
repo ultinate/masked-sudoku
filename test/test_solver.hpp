@@ -64,9 +64,6 @@ mask ** getTestSliceFull() {
 }
 
 void test_OverlapSolver_boxToColumn() {
-    // TODO: Implement
-    TEST(false);
-    /*
     std::string input =
         "........."
         "2........"
@@ -79,10 +76,11 @@ void test_OverlapSolver_boxToColumn() {
         ".56......";
     Parser *p = new Parser(input);
     p->parse();
-    mask *board = p->unsolvedBoard;
-    SlicerInterface *slicer = new BoxSlicer(board);
-    SliceSolverInterface *solver = new OverlapSolver();
-    solver->solveAllSlices(slicer);
+    mask *board = p->getBoard();
+    std::cout << Visualizer::printBoardMini(board) << std::endl;
+
+    SolverInterface *solver = new OverlapSolver();
+    solver->solveBoard(board);
     std::string expected =
         "1........"
         "2........"
@@ -95,6 +93,16 @@ void test_OverlapSolver_boxToColumn() {
         ".56......";
     TEST(expected == Visualizer::printBoardMini(board));
     std::cout << Visualizer::printBoardMini(board) << std::endl;
+
+    // TODO: Check the following in isolation
+    /*
+    OverlapSolver *solver = new OverlapSolver();
+    SlicerInterface *origin;
+    SlicerInterface *target;
+    // Box-to-vertical
+    origin = new BoxSlicer(board);
+    target = new VerticalSlicer(board);
+    solver->solveBoard(board, origin, target);
     */
 }
 
@@ -111,7 +119,7 @@ void test_EliminateSolver_box() {
         ".........";
     Parser *p = new Parser(input);
     p->parse();
-    mask *board = p->unsolvedBoard;
+    mask *board = p->getBoard();
     SlicerInterface *slicer = new BoxSlicer(board);
     SliceSolverInterface *solver = new EliminateSolver();
     solver->solveAllSlices(slicer);
@@ -142,7 +150,7 @@ void test_solvers_combined() {
         ".........";
     Parser *p = new Parser(input);
     p->parse();
-    mask *board = p->unsolvedBoard;
+    mask *board = p->getBoard();
 
     SlicerInterface *slicer = new HorizontalSlicer(board);
     SliceSolverInterface *solver = new EliminateSolver();
@@ -185,7 +193,7 @@ void test_EliminateSolver_horizontal() {
         ".........";
     Parser *p = new Parser(inputString);
     p->parse();
-    mask *board = p->unsolvedBoard;
+    mask *board = p->getBoard();
     SlicerInterface *slicer = new HorizontalSlicer(board);
     SliceSolverInterface *solver = new EliminateSolver();
     solver->solveAllSlices(slicer);
@@ -215,7 +223,7 @@ void test_EliminateSolver_vertical() {
         "........9";
     Parser *p = new Parser(inputString);
     p->parse();
-    mask *board = p->unsolvedBoard;
+    mask *board = p->getBoard();
     SlicerInterface *slicer = new VerticalSlicer(board);
     SliceSolverInterface *solver = new EliminateSolver();
     solver->solveAllSlices(slicer);
@@ -245,7 +253,7 @@ void test_EliminateSolver_horizontalVertical() {
         "........9";
     Parser *p = new Parser(inputString);
     p->parse();
-    mask *board = p->unsolvedBoard;
+    mask *board = p->getBoard();
 
     SlicerInterface *slicer = new HorizontalSlicer(board);
     SliceSolverInterface *solver = new EliminateSolver();
@@ -335,21 +343,21 @@ void test_DetermineSolver_solveSlice() {
 void test_DetermineSolver_solveSliceNoChange() {
     mask **slice = getTestSliceFull();
     mask **slicePtr = slice;
-    mask **sliceBefore = new mask*[N];
-    BoardManager::copySlice(sliceBefore, slicePtr);
+    mask **sliceBefore = getTestSliceRow();  // initialize with any values
+    BoardManager::deepCopySlice(sliceBefore, slicePtr);
     DetermineSolver ds;
     ds.solveSlice(slicePtr);
-    TEST(BoardManager::isSliceEqual(slicePtr, sliceBefore));
+    TEST(BoardManager::areSliceValuesEqual(slicePtr, sliceBefore));
 }
  
 void test_EliminateSolver_solveSliceNoChange() {
     mask **slice = getTestSliceFull();
     mask **slicePtr = slice;
-    mask **sliceBefore = new mask*[N];
-    BoardManager::copySlice(sliceBefore, slicePtr);
+    mask **sliceBefore = getTestSliceRow();  // initialize with any values
+    BoardManager::deepCopySlice(sliceBefore, slicePtr);
     EliminateSolver es;
     es.solveSlice(slicePtr);
-    TEST(BoardManager::isSliceEqual(slicePtr, sliceBefore));
+    TEST(BoardManager::areSliceValuesEqual(slicePtr, sliceBefore));
 }
 
 void test_EliminateSolver_eliminate() {
@@ -408,7 +416,8 @@ void test_SolverInterface_transposeSliceTwice() {
     mask **slice = getTestSlice();
     mask **sliceT = BoardManager::transposeSlice(slice);
     mask **sliceTT = BoardManager::transposeSlice(sliceT);
-    TEST(BoardManager::isSliceEqual(slice, sliceTT));
+    TEST(BoardManager::areSliceValuesEqual(slice, sliceTT));
+    TEST(!(BoardManager::areSlicesEqual(slice, sliceTT)));
 }
 
 void test_SolverInterface_transposeSlice_simple() {
@@ -448,29 +457,55 @@ void test_SolverInterface_copySlice() {
 
     mask **sliceCopy = new mask*[N];
     BoardManager::copySlice(sliceCopy, slice);
-    TEST(*sliceCopy[0] == 0b111111111);
-    TEST(BoardManager::isSliceEqual(slice, sliceCopy));
+    for (int i = 0; i < N; i++) {
+        TEST(*sliceCopy[i] == 0b111111111);
+    }
+    TEST(BoardManager::areSliceValuesEqual(slice, sliceCopy));
+    TEST(BoardManager::areSlicesEqual(slice, sliceCopy));
 }
 
 void test_SolverInterface_deepCopySlice() {
-    // TODO: implement
-    TEST(false);
+    mask **slice = getTestSliceRow();
+    mask **sliceCopy = new mask*[N];
+    for (int i = 0; i < N; i++) {
+        sliceCopy[i] = new mask;
+    }
+    BoardManager::deepCopySlice(sliceCopy, slice);
+    // values must be equal
+    TEST(*sliceCopy[0] == 0b111101111);
+    TEST(*sliceCopy[1] == 0b111101111);
+    TEST(*sliceCopy[2] == 0b111101111);
+    TEST(*sliceCopy[3] == 0b111101111);
+    TEST(*sliceCopy[4] == 0b111111111);
+    TEST(*sliceCopy[5] == 0b111101111);
+    TEST(*sliceCopy[6] == 0b111101111);
+    TEST(*sliceCopy[7] == 0b111101111);
+    TEST(*sliceCopy[8] == 0b111101111);
+    // pointers must not be equal
+    for (int i = 0; i < N; i++) {
+        TEST(sliceCopy[i] != slice[i]);
+    }
+    TEST(BoardManager::areSliceValuesEqual(slice, sliceCopy));
+    TEST(!(BoardManager::areSlicesEqual(slice, sliceCopy)));
 }
 
-void test_SolverInterface_isSliceEqual_equalAddresses() {
+void test_SolverInterface_areSlicesEqual_equalAddresses() {
     mask **slice = getTestSliceFull();
     mask **sliceCopy = new mask*[N];
     BoardManager::copySlice(sliceCopy, slice);
-    TEST(BoardManager::isSliceEqual(slice, sliceCopy));
+    TEST(BoardManager::areSlicesEqual(slice, sliceCopy));
+    TEST(BoardManager::areSliceValuesEqual(slice, sliceCopy));
 }
 
-void test_SolverInterface_isSliceEqual_equalValues() {
+void test_SolverInterface_areSlicesEqual_equalValues() {
     mask **slice = getTestSliceFull();
     mask **sliceCopy = getTestSliceFull();
 
-    TEST(BoardManager::isSliceEqual(slice, sliceCopy));
+    TEST(!(BoardManager::areSlicesEqual(slice, sliceCopy)));
+    TEST(BoardManager::areSliceValuesEqual(slice, sliceCopy));
     *sliceCopy[0] = 0b111111110;
-    TEST(!BoardManager::isSliceEqual(slice, sliceCopy));
+    TEST(!(BoardManager::areSlicesEqual(slice, sliceCopy)));
+    TEST(!(BoardManager::areSliceValuesEqual(slice, sliceCopy)));
 }
 
 void test_SolverInterface_isSliceSolved() {
@@ -515,7 +550,7 @@ void test_SolverInterface_isBoardSolved_solved() {
     Parser *p = new Parser(inputString);
     int parseResult = p->parse();
     TEST(parseResult == 0);
-    mask *board = p->unsolvedBoard;
+    mask *board = p->getBoard();
     TEST(BoardManager::isBoardSolved(board));
 }
 
@@ -533,7 +568,7 @@ void test_SolverInterface_isBoardSolved_notSolved() {
     Parser *p = new Parser(inputString);
     int parseResult = p->parse();
     TEST(parseResult == 0);
-    mask *board = p->unsolvedBoard;
+    mask *board = p->getBoard();
     TEST(!BoardManager::isBoardSolved(board));
 }
 
@@ -551,7 +586,20 @@ void test_SolverInterface_isBoardSolved_illegal() {
     Parser *p = new Parser(inputString);
     int parseResult = p->parse();
     TEST(parseResult == 0);
-    mask *board = p->unsolvedBoard;
+    mask *board = p->getBoard();
     TEST(!BoardManager::isBoardSolved(board));
+}
+
+void test_BoardManager_isInsideList() {
+    mask **slice = getTestSlice();
+    mask *element = slice[3];
+    TEST(BoardManager::isInsideList(element, slice, N));
+    element = new mask;
+    TEST(!BoardManager::isInsideList(element, slice, N));
+
+    slice = getTestSlice();
+    mask **sliceOther = getTestSlice();
+    element = slice[3];
+    TEST(!BoardManager::isInsideList(element, sliceOther, N));
 }
 

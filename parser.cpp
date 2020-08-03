@@ -39,13 +39,6 @@ unsigned int Parser::countBits(mask m) {
     return counter;
 }
 
-/**
- * Returns log2 of a number if it is a multiple of 2
- *
- * log2 expects mask to have only 1 bit set.
- * Otherwise, the position (log2) of the LSB of m is returned,
- * or 0 if no bits are set.
- */
 unsigned int Parser::log2(mask m) {
     for (int i=0; i < N; i++) {
         if (m & (0x1 << i)) {
@@ -55,9 +48,9 @@ unsigned int Parser::log2(mask m) {
     return 0;
 }
 
-Parser::Parser(std::string s) {
-    this->s = s;
-    unsolvedBoard = new mask[N*N];
+Parser::Parser(std::string inputString) {
+    this->inputString = inputString;
+    this->unsolvedBoard = new mask[N*N];
 }
 
 bool Parser::isBitSet(mask m, unsigned int i) {
@@ -69,17 +62,19 @@ mask Parser::getMaskFromInt(unsigned int i) {
 }
 
 mask Parser::getNotMask(unsigned int i) {
-    return ~(0x1 << (i - 1));
+    return ~(getMaskFromInt(i));
 }
 
 int Parser::parse() {
-    if (this->s.length() != N * N) {
-        std::cout << "Input string has wrong length (" <<
-            this->s.length() << " instead of " << N*N << ")" << std::endl;
+    if (this->inputString.length() != N * N) {
+        std::cout << 
+            "Input string has wrong length (" <<
+            this->inputString.length() << " instead of " << 
+            N*N << ")" << std::endl;
         return -1;
     }
     for (int i = 0; i < N * N; i++) {
-        char c = this->s[i];
+        char c = this->inputString[i];
         unsolvedBoard[i] = inputCharToMask(c);
     }
     return 0;

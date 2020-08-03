@@ -13,49 +13,46 @@
 class BoardManager {
     public:
         /**
-         * Helper to transpose a slice
+         * Transpose a slice
+         *
+         * Transpose is used in the sense of matrix operations.
+         * Creates a new slice in a new memory location.
+         * Users should delete result to avoid memory leaks.
          */
         static mask ** transposeSlice(mask **slice);
 
         /**
-         * Helper to copy sliceFrom to sliceTo
+         * (Shallow) Copy sliceFrom to sliceTo
          *
-         * Does not copy any values. Just points the elements in sliceTo to
+         * Does not copy any values. Points the elements in sliceTo to
          * the same addresses as sliceFrom.
          */
         static void copySlice(mask **sliceTo, mask **sliceFrom);
 
         /**
-         * Helper to copy values in sliceFrom to sliceTo
+         * (Deep) Copy values in sliceFrom to sliceTo
          *
-         * Does not change any pointers. Just (deep) copies values to which the
-         * elements in sliceFrom point to to the addresses of sliceTo.
+         * Does not change any pointers. Assigns values that sliceFrom
+         * points to to elements in sliceTo.
          */
         static void deepCopySlice(mask **sliceTo, mask **sliceFrom);
 
         /**
-         * Helper to check whether two slices are equal to every bit.
-         */
-        static bool isSliceEqual(mask **sliceLhs, mask **sliceRhs);
-
-         /**
-         * Helper to copy boardFrom to boardTo
+         * Check whether two slices point to the same addresses
          *
-         * Does not copy any values. Just points the elements in boardTo to
-         * the same addresses as boardFrom.
+         * This implies that the two slices also have the same values.
          */
-        static void copyBoard(mask *boardTo, mask *boardFrom);
-       
-        /**
-         * Helper to check whether two boards are equal to every bit.
-         *
-         * Just checks isEqual for a set of slices representing the
-         * complete board (e.g. all horizonal ones).
-         */
-        static bool isBoardEqual(mask *boardLhs, mask *boardRhs);
+        static bool areSlicesEqual(mask **sliceLhs, mask **sliceRhs);
 
         /**
-         * Helper to check whether a slice is legally solved.
+         * Check whether two slices have the same values
+         *
+         * Does not check whether the slices point to the same addresses.
+         */
+        static bool areSliceValuesEqual(mask **sliceLhs, mask **sliceRhs);
+
+        /**
+         * Check whether a slice is legally solved.
          *
          * This means that the slide has a number fixed for every
          * field and that no number is duplicated.
@@ -63,16 +60,18 @@ class BoardManager {
         static bool isSliceSolved(mask **slice);
          
         /**
-         * Helper to check whether a board is legally solved.
+         * Check whether a board is solved correctly
          *
          * Just checks all slices for isSolved().
          */
         static bool isBoardSolved(mask *board);
 
-    private:
         /**
-         * Helper to check whether a silce is solved (internal)
+         * Returns true if a mask is contained in mask pointer list
          */
+        static bool isInsideList(mask *needle, mask **haystack,
+                unsigned int haystackLength);
+    private:
         static bool isSolvedDetail(mask **slice);
 };
 
@@ -112,18 +111,17 @@ class SliceSolverInterface : public SolverInterface {
         SliceSolverInterface() {}
         ~SliceSolverInterface() {}
         /**
-         * The slice solving magic is happening here.
-         *
-         * Tries to solve a slice in-place.
-         * TODO: Make this private
-         */
-        virtual void solveSlice(mask **slice) = 0;
-
-        /**
          * Helper to apply a solver to all slices of a board
          */
         void solveAllSlices(SlicerInterface *slicer);
         void solveBoard(mask *board);
+
+        /**
+         * Tries to solve a slice in-place.
+         *
+         * TODO: Make this private. Note: unit tests
+         */
+        virtual void solveSlice(mask **slice) = 0;
 };
 
 
@@ -181,8 +179,6 @@ class OverlapSolver : public SolverInterface {
                 SlicerInterface *target);
         void eliminate(mask **slice, unsigned int valueToEliminate,
                 mask **exceptMasks, unsigned int exceptMasksLength);
-        bool isInsideList(mask *needle, mask **haystack,
-                unsigned int haystackLength);
 };
 
 

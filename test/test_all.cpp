@@ -93,12 +93,13 @@ int runUnitTests()
         test_SolverInterface_transposeSlice_simple();
         test_SolverInterface_copySlice();
         test_SolverInterface_deepCopySlice();
-        test_SolverInterface_isSliceEqual_equalAddresses();
-        test_SolverInterface_isSliceEqual_equalValues();
+        test_SolverInterface_areSlicesEqual_equalAddresses();
+        test_SolverInterface_areSlicesEqual_equalValues();
         test_SolverInterface_isSliceSolved();
         test_SolverInterface_isBoardSolved_solved();
         test_SolverInterface_isBoardSolved_notSolved();
         test_SolverInterface_isBoardSolved_illegal();
+        test_BoardManager_isInsideList();
 
         TEST_GROUP("hex and binary representation"); 
         TEST(0x1 == 1); 

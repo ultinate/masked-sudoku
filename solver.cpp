@@ -45,31 +45,18 @@ void BoardManager::deepCopySlice(mask **sliceTo, mask **sliceFrom) {
     }
 }
 
-bool BoardManager::isSliceEqual(mask **sliceLhs, mask **sliceRhs) {
+bool BoardManager::areSlicesEqual(mask **sliceLhs, mask **sliceRhs) {
     for (int i = 0; i < N; i++) {
-        if (*sliceLhs[i] != *sliceRhs[i]) {
+        if (sliceLhs[i] != sliceRhs[i]) {
             return false;
         }
     }
     return true;
 }
 
-void BoardManager::copyBoard(mask *boardTo, mask *boardFrom) {
-    for (int i = 0; i < N * N; i++) {
-        boardTo[i] = boardFrom[i];
-    }
-}
-
-bool BoardManager::isBoardEqual(mask *lhs, mask *rhs) {
-    HorizontalSlicer slicerLhs(lhs);
-    HorizontalSlicer slicerRhs(rhs);
-    mask **sliceLhs;
-    mask **sliceRhs;
-    for (sliceLhs = slicerLhs.nextSlice(), sliceRhs = slicerRhs.nextSlice();
-            !slicerLhs.isDone() && !slicerRhs.isDone();
-            sliceLhs = slicerLhs.nextSlice(), sliceRhs = slicerRhs.nextSlice()
-            ) {
-        if (!isSliceEqual(sliceLhs, sliceRhs)) {
+bool BoardManager::areSliceValuesEqual(mask **sliceLhs, mask **sliceRhs) {
+    for (int i = 0; i < N; i++) {
+        if (*sliceLhs[i] != *sliceRhs[i]) {
             return false;
         }
     }
@@ -108,6 +95,16 @@ bool BoardManager::isBoardSolved(mask *board) {
         }
     }
     return true;
+}
+
+bool BoardManager::isInsideList(mask *needle, mask **haystack,
+        unsigned int haystackLength) {
+    for (int i = 0; i < haystackLength; i++) {
+        if (needle == haystack[i]) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool BoardManager::isSolvedDetail(mask **slice) {
@@ -153,10 +150,12 @@ void DetermineSolver::solveSlice(mask **slice) {
     EliminateSolver es;
     es.solveSlice(sliceT);
     mask **sliceAfter = BoardManager::transposeSlice(sliceT);
-    bool isEqual = BoardManager::isSliceEqual(slice, sliceAfter);
+    bool isEqual = BoardManager::areSliceValuesEqual(slice, sliceAfter);
     if (!isEqual) {
         BoardManager::deepCopySlice(slice, sliceAfter);
     }
+    delete sliceT;
+    delete sliceAfter;
 }
 
 
@@ -213,7 +212,7 @@ void OverlapSolver::solveSlice(mask **sliceOrigin, mask **sliceTarget) {
         // check each position
         for (int i = 0; i < N; i++) {
             if (Parser::isBitSet(candidate, i)) {
-                if (isInsideList(sliceOrigin[i], sliceTarget, N)) {
+                if (BoardManager::isInsideList(sliceOrigin[i], sliceTarget, N)) {
                     // interesting case, we have an overlap of a possible
                     // location
                     listOfOverlaps[lengthOfOverlaps++] = sliceOrigin[i];
@@ -278,19 +277,9 @@ void OverlapSolver::eliminate(
         mask **exceptMasks, unsigned int exceptMasksLength) {
     mask eliminateMask = Parser::getNotMask(valueToEliminate);
     for (int i = 0; i < N; i++) {
-        if (!isInsideList(slice[i], exceptMasks, exceptMasksLength)) {
+        if (!BoardManager::isInsideList(slice[i], exceptMasks, exceptMasksLength)) {
             *slice[i] = *slice[i] & eliminateMask;
         }
     }
-}
-
-bool OverlapSolver::isInsideList(mask *needle, mask **haystack,
-        unsigned int haystackLength) {
-    for (int i = 0; i < haystackLength; i++) {
-        if (needle == haystack[i]) {
-            return true;
-        }
-    }
-    return false;
 }
 
