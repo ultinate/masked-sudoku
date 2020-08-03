@@ -14,6 +14,7 @@ $(OUTFILE) : main.cpp $(OBJS)
 	$(CXX) $(CFLAGS) main.cpp -o $(OUTFILE) $(OBJS)
 
 clean:
+	$(RM) $(OUTFILE) $(OUTFILE_TEST)
 	$(RM) *.o *.d
 	$(RM) test/*.o test/*.d
 	$(RM) *.gcno *.gcda
