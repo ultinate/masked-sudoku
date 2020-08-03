@@ -77,12 +77,11 @@ void test_OverlapSolver_boxToColumn() {
     Parser *p = new Parser(input);
     p->parse();
     mask *board = p->getBoard();
-    std::cout << Visualizer::printBoardMini(board) << std::endl;
 
     SolverInterface *solver = new OverlapSolver();
     solver->solveBoard(board);
     std::string expected =
-        "1........"
+        "........."
         "2........"
         "3........"
         "4........"
@@ -92,18 +91,6 @@ void test_OverlapSolver_boxToColumn() {
         ".34......"
         ".56......";
     TEST(expected == Visualizer::printBoardMini(board));
-    std::cout << Visualizer::printBoardMini(board) << std::endl;
-
-    // TODO: Check the following in isolation
-    /*
-    OverlapSolver *solver = new OverlapSolver();
-    SlicerInterface *origin;
-    SlicerInterface *target;
-    // Box-to-vertical
-    origin = new BoxSlicer(board);
-    target = new VerticalSlicer(board);
-    solver->solveBoard(board, origin, target);
-    */
 }
 
 void test_EliminateSolver_box() {
@@ -279,15 +266,15 @@ void test_EliminateSolver_solveSlice() {
     mask **slice = getTestSlice();
 
     // have we got the slice correctly?
-    TEST(*slice[0] = 0b000000001);
-    TEST(*slice[1] = 0b000000011);
-    TEST(*slice[2] = 0b100000100);
-    TEST(*slice[3] = 0b100000000);
-    TEST(*slice[4] = 0b100000001);
-    TEST(*slice[5] = 0b111110111);
-    TEST(*slice[6] = 0b100110001);
-    TEST(*slice[7] = 0b100010001);
-    TEST(*slice[8] = 0b111110011);
+    TEST(*slice[0] == 0b000000001);
+    TEST(*slice[1] == 0b000000011);
+    TEST(*slice[2] == 0b100000100);
+    TEST(*slice[3] == 0b100000000);
+    TEST(*slice[4] == 0b100000001);
+    TEST(*slice[5] == 0b111110111);
+    TEST(*slice[6] == 0b100110001);
+    TEST(*slice[7] == 0b100010001);
+    TEST(*slice[8] == 0b111110011);
 
     // let's solve it
     EliminateSolver es;
@@ -549,7 +536,7 @@ void test_SolverInterface_isBoardSolved_solved() {
         "613947258";
     Parser *p = new Parser(inputString);
     int parseResult = p->parse();
-    TEST(parseResult == 0);
+    TEST(0 == parseResult);
     mask *board = p->getBoard();
     TEST(BoardManager::isBoardSolved(board));
 }
@@ -603,3 +590,118 @@ void test_BoardManager_isInsideList() {
     TEST(!BoardManager::isInsideList(element, sliceOther, N));
 }
 
+void test_OverlapSolver_getListOfOverlaps_noOverlap() {
+    mask **slice = getTestSlice();
+    mask **sliceTarget = getTestSlice();
+
+    // candidate "2" appears in three potential positions of _slice_
+    // let's assume no overlap between the two slices.
+    int candidate = 2;
+
+    mask **listOfOverlaps = getTestSlice();  // initialize with any value
+    OverlapSolver *solver = new OverlapSolver();
+    int length = solver->getListOfOverlaps(candidate, listOfOverlaps, 
+            slice, sliceTarget);
+    TEST(0 == length);
+}
+
+void test_OverlapSolver_getListOfOverlaps_noCandidateInOverlap() {
+    mask **slice = getTestSlice();
+    mask **sliceTarget = getTestSlice();
+
+    // candidate "2" appears in three potential positions of _slice_
+    // let's assume overlap between the two slices, however, in other positions
+    int candidate = 2;
+    sliceTarget[0] = slice[2];
+    sliceTarget[1] = slice[3];
+    sliceTarget[2] = slice[4];
+
+    mask **listOfOverlaps = getTestSlice();  // initialize with any value
+    OverlapSolver *solver = new OverlapSolver();
+    int length = solver->getListOfOverlaps(candidate, listOfOverlaps, 
+            slice, sliceTarget);
+    TEST(0 == length);
+}
+void test_OverlapSolver_getListOfOverlaps_threeOverlapWithCandidate() {
+    mask **slice = getTestSlice();
+    mask **sliceTarget = getTestSlice();  // initialize with any value
+
+    // candidate "2" appears in three potential positions of _slice_
+    // let's assume these three positions also overlap with _sliceTarget_
+    int candidate = 2;
+    sliceTarget[0] = slice[1];
+    sliceTarget[1] = slice[5];
+    sliceTarget[2] = slice[8];
+
+    mask **listOfOverlaps = getTestSlice();  // initialize with any value
+    OverlapSolver *solver = new OverlapSolver();
+    int length = solver->getListOfOverlaps(candidate, listOfOverlaps, 
+            slice, sliceTarget);
+    std::cout << Visualizer::printSlice(listOfOverlaps) << std::endl;
+    TEST(3 == length);
+}
+
+void test_OverlapSolver_eliminate_exceptNothing() {
+    mask **slice = getTestSlice();
+
+    // have we got the slice correctly?
+    TEST(*slice[0] == 0b000000001);
+    TEST(*slice[1] == 0b000000011);
+    TEST(*slice[2] == 0b100000100);
+    TEST(*slice[3] == 0b100000000);
+    TEST(*slice[4] == 0b100000001);
+    TEST(*slice[5] == 0b111110111);
+    TEST(*slice[6] == 0b100110001);
+    TEST(*slice[7] == 0b100010001);
+    TEST(*slice[8] == 0b111110011);
+
+    OverlapSolver *solver = new OverlapSolver();
+    mask **sliceOther = new mask*[N];
+    solver->eliminate(slice, 1, sliceOther, 0);
+
+    TEST(*slice[0] == 0b000000000);
+    TEST(*slice[1] == 0b000000010);
+    TEST(*slice[2] == 0b100000100);
+    TEST(*slice[3] == 0b100000000);
+    TEST(*slice[4] == 0b100000000);
+    TEST(*slice[5] == 0b111110110);
+    TEST(*slice[6] == 0b100110000);
+    TEST(*slice[7] == 0b100010000);
+    TEST(*slice[8] == 0b111110010);
+}
+
+void test_OverlapSolver_eliminate_exceptOne() {
+    mask **slice = getTestSlice();
+    OverlapSolver *solver = new OverlapSolver();
+    mask **sliceOther = new mask*[N];
+    sliceOther[0] = slice[3];
+    solver->eliminate(slice, 9, sliceOther, 1);
+
+    TEST(*slice[0] == 0b000000001);
+    TEST(*slice[1] == 0b000000011);
+    TEST(*slice[2] == 0b000000100);
+    TEST(*slice[3] == 0b100000000);
+    TEST(*slice[4] == 0b000000001);
+    TEST(*slice[5] == 0b011110111);
+    TEST(*slice[6] == 0b000110001);
+    TEST(*slice[7] == 0b000010001);
+    TEST(*slice[8] == 0b011110011);
+}
+
+void test_OverlapSolver_eliminate_exceptAll() {
+    mask **slice = getTestSlice();
+    OverlapSolver *solver = new OverlapSolver();
+    mask **sliceOther = new mask*[N];
+    BoardManager::copySlice(sliceOther, slice);
+    solver->eliminate(slice, 1, sliceOther, N);
+
+    TEST(*slice[0] == 0b000000001);
+    TEST(*slice[1] == 0b000000011);
+    TEST(*slice[2] == 0b100000100);
+    TEST(*slice[3] == 0b100000000);
+    TEST(*slice[4] == 0b100000001);
+    TEST(*slice[5] == 0b111110111);
+    TEST(*slice[6] == 0b100110001);
+    TEST(*slice[7] == 0b100010001);
+    TEST(*slice[8] == 0b111110011);
+}

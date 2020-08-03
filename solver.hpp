@@ -177,6 +177,13 @@ class OverlapSolver : public SolverInterface {
         void solveSlice(mask **sliceOrigin, mask **sliceTarget);
         void solveBoard(mask *board, SlicerInterface *origin,
                 SlicerInterface *target);
+        /**
+         * Return list of overlapping masks of two slices which are
+         * potential locations of number _candidate_;
+         * IFF all potential locations of _candinate_ lie within _sliceTarget_.
+         */
+        int getListOfOverlaps(int candidate, mask **list,
+                mask **sliceOrigin, mask **sliceTarget);
         void eliminate(mask **slice, unsigned int valueToEliminate,
                 mask **exceptMasks, unsigned int exceptMasksLength);
 };

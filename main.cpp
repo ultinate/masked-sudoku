@@ -19,12 +19,11 @@
 bool solveBoard(mask *board, bool isVerbose) {
     int maxLoops = N * N * N;
     int infoLoops = 1;
-    int solverLength = 2;
+    int solverLength = 3;
     SolverInterface *solver[solverLength];
     solver[0] = new DetermineSolver();
     solver[1] = new EliminateSolver();
-    // DEBUG
-    // solver[2] = new OverlapSolver();
+    solver[2] = new OverlapSolver();
     int numLoops;
     for (numLoops = 0; numLoops < maxLoops; numLoops++) {
         for (int i = 0; i < solverLength; i++) {

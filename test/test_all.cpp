@@ -100,6 +100,12 @@ int runUnitTests()
         test_SolverInterface_isBoardSolved_notSolved();
         test_SolverInterface_isBoardSolved_illegal();
         test_BoardManager_isInsideList();
+        test_OverlapSolver_getListOfOverlaps_noOverlap();
+        test_OverlapSolver_getListOfOverlaps_noCandidateInOverlap();
+        test_OverlapSolver_getListOfOverlaps_threeOverlapWithCandidate();
+        test_OverlapSolver_eliminate_exceptNothing();
+        test_OverlapSolver_eliminate_exceptOne();
+        test_OverlapSolver_eliminate_exceptAll();
 
         TEST_GROUP("hex and binary representation"); 
         TEST(0x1 == 1); 

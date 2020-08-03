@@ -206,35 +206,34 @@ void OverlapSolver::solveSlice(mask **slice) {
 void OverlapSolver::solveSlice(mask **sliceOrigin, mask **sliceTarget) {
     // for each number 1 through 9
     for (int candidate = 0; candidate < N; candidate++) {
-        bool isCandidateToEliminate = true;
-        int lengthOfOverlaps = 0;
         mask **listOfOverlaps = new mask*[N];
-        // check each position
-        for (int i = 0; i < N; i++) {
-            if (Parser::isBitSet(candidate, i)) {
-                if (BoardManager::isInsideList(sliceOrigin[i], sliceTarget, N)) {
-                    // interesting case, we have an overlap of a possible
-                    // location
-                    listOfOverlaps[lengthOfOverlaps++] = sliceOrigin[i];
-                }
-                else {
-                    // not interesting, we have a possible location that
-                    // does not overlap
-                    isCandidateToEliminate = false;
-                    continue;
-                }
+        int lengthOfOverlaps = getListOfOverlaps(candidate, listOfOverlaps,
+                                                 sliceOrigin, sliceTarget);
+        if (0 < lengthOfOverlaps and lengthOfOverlaps <= 3) {
+            eliminate(sliceTarget, candidate, listOfOverlaps, lengthOfOverlaps);
+        }
+    }
+}
+
+int OverlapSolver::getListOfOverlaps(int candidate, mask **list,
+        mask **sliceOrigin, mask **sliceTarget) {
+    int length = 0;
+    for (int i = 0; i < N; i++) {
+        if (Parser::isBitSet(*sliceOrigin[i], candidate)) {
+            // We have a possible location for _candiate_
+            if (BoardManager::isInsideList(sliceOrigin[i], sliceTarget, N)) {
+                // We have an overlap of a possible location with _s2_
+                list[length] = sliceOrigin[i];
+                length++;
             }
             else {
-                // not interesting
-            }
-        }
-        if (isCandidateToEliminate) {
-            if (lengthOfOverlaps > 0 and lengthOfOverlaps <= 3) {
-                eliminate(sliceTarget, candidate, listOfOverlaps,
-                          lengthOfOverlaps);
+                // We have a possible location that does not overlap. Stop.
+                length = 0;
+                break;
             }
         }
     }
+    return length;
 }
 
 void OverlapSolver::solveBoard(mask *board) {
@@ -272,8 +271,7 @@ void OverlapSolver::solveBoard(mask *board, SlicerInterface *origin,
     }
 }
 
-void OverlapSolver::eliminate(
-        mask **slice, unsigned int valueToEliminate,
+void OverlapSolver::eliminate(mask **slice, unsigned int valueToEliminate,
         mask **exceptMasks, unsigned int exceptMasksLength) {
     mask eliminateMask = Parser::getNotMask(valueToEliminate);
     for (int i = 0; i < N; i++) {
