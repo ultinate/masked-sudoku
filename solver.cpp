@@ -63,20 +63,44 @@ bool BoardManager::areSliceValuesEqual(mask **sliceLhs, mask **sliceRhs) {
     return true;
 }
 
+bool BoardManager::isSliceLegal(mask **slice) {
+    mask solvedNumbers = 0x0;
+    for (int i = 0; i < N; i++) {
+        if (Parser::isOnlyOneBit(*slice[i])) {
+            if (solvedNumbers & *slice[i]) {
+                // duplicate number detected
+                return false;
+            }
+            // mark number as taken
+            solvedNumbers = solvedNumbers | *slice[i];
+        }
+    }
+    return true;
+}
+
 bool BoardManager::isSliceSolved(mask **slice) {
     bool isFilled = isSolvedDetail(slice);
     bool isCorrect = isSolvedDetail(transposeSlice(slice));
-    if (isFilled && isCorrect) {
-        return true;
+    return isFilled && isCorrect;
+}
+
+bool BoardManager::isBoardLegal(mask *board) {
+    // TODO: Contains duplicate code. Refactor.
+    int slicerLength = 3;
+    SlicerInterface *slicer[slicerLength];
+    slicer[0] = new HorizontalSlicer(board);
+    slicer[1] = new VerticalSlicer(board);
+    slicer[2] = new BoxSlicer(board);
+    for (int i = 0; i < slicerLength; i++) {
+        for (mask **slice = slicer[i]->nextSlice();
+                !slicer[i]->isDone();
+                slice = slicer[i]->nextSlice()) {
+            if (!isSliceLegal(slice)) {
+                return false;
+            }
+        }
     }
-    else if (!isFilled && !isCorrect) {
-        return false;
-    }
-    else {
-        std::cout << "Error occured. Illegal slice state: " << \
-            Visualizer::printSlice(slice) << std::endl;
-        return false;
-    }
+    return true;
 }
 
 bool BoardManager::isBoardSolved(mask *board) {

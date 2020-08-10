@@ -511,19 +511,22 @@ void test_SolverInterface_isSliceSolved() {
         slicePtr[i] = &slice[i];
     }
 
-    // not solved
+    // not solved yet
     TEST(!BoardManager::isSliceSolved(slicePtr));
+    TEST(BoardManager::isSliceLegal(slicePtr));
     
     // correctly solved
     slice[0] = 0b100000000;
     TEST(BoardManager::isSliceSolved(slicePtr));
+    TEST(BoardManager::isSliceLegal(slicePtr));
 
     // solved, but illegal
     slice[0] = 0b000000001;
     TEST(!BoardManager::isSliceSolved(slicePtr));
+    TEST(!BoardManager::isSliceLegal(slicePtr));
 }
 
-void test_SolverInterface_isBoardSolved_solved() {
+void test_SolverInterface_isBoardSolved_solvedLegal() {
      std::string inputString = 
         "491786325"
         "735294816"
@@ -539,9 +542,10 @@ void test_SolverInterface_isBoardSolved_solved() {
     TEST(0 == parseResult);
     mask *board = p->getBoard();
     TEST(BoardManager::isBoardSolved(board));
+    TEST(BoardManager::isBoardLegal(board));
 }
 
-void test_SolverInterface_isBoardSolved_notSolved() {
+void test_SolverInterface_isBoardSolved_notSolvedLegal() {
      std::string inputString = 
         "..37..4.6"
         "...3.5..."
@@ -557,9 +561,10 @@ void test_SolverInterface_isBoardSolved_notSolved() {
     TEST(parseResult == 0);
     mask *board = p->getBoard();
     TEST(!BoardManager::isBoardSolved(board));
+    TEST(BoardManager::isBoardLegal(board));
 }
 
-void test_SolverInterface_isBoardSolved_illegal() {
+void test_SolverInterface_isBoardSolved_solvedIllegal() {
      std::string inputString = 
         "999999999"
         "735294816"
@@ -575,8 +580,27 @@ void test_SolverInterface_isBoardSolved_illegal() {
     TEST(parseResult == 0);
     mask *board = p->getBoard();
     TEST(!BoardManager::isBoardSolved(board));
+    TEST(!BoardManager::isBoardLegal(board));
 }
 
+void test_SolverInterface_isBoardSolved_notSolvedIllegal() {
+     std::string inputString = 
+        "..36..4.6"
+        "...3.5..."
+        "92..6.8.."
+        ".5...2..4"
+        "..1...6.."
+        "4..98..7."
+        ".3..71..8"
+        "..4...7.2"
+        "..6...1.3";
+    Parser *p = new Parser(inputString);
+    int parseResult = p->parse();
+    TEST(parseResult == 0);
+    mask *board = p->getBoard();
+    TEST(!BoardManager::isBoardSolved(board));
+    TEST(!BoardManager::isBoardLegal(board));
+}
 void test_BoardManager_isInsideList() {
     mask **slice = getTestSlice();
     mask *element = slice[3];
@@ -637,7 +661,6 @@ void test_OverlapSolver_getListOfOverlaps_threeOverlapWithCandidate() {
     OverlapSolver *solver = new OverlapSolver();
     int length = solver->getListOfOverlaps(candidate, listOfOverlaps, 
             slice, sliceTarget);
-    std::cout << Visualizer::printSlice(listOfOverlaps) << std::endl;
     TEST(3 == length);
 }
 

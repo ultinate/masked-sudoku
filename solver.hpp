@@ -58,13 +58,28 @@ class BoardManager {
          * field and that no number is duplicated.
          */
         static bool isSliceSolved(mask **slice);
+        
+        /**
+         * Checks whether a slice is legal
+         *
+         * This means that the slice does not contain any duplicate numbers.
+         * This method does not care if the slice is completely filled yet.
+         */
+        static bool isSliceLegal(mask **slice);
          
         /**
          * Check whether a board is solved correctly
          *
-         * Just checks all slices for isSolved().
+         * Just checks all slices for isSliceSolved().
          */
         static bool isBoardSolved(mask *board);
+
+        /**
+         * Checks whether a board is legal
+         *
+         * Just checks all slices for isSliceLegal().
+         */
+        static bool isBoardLegal(mask *board);
 
         /**
          * Returns true if a mask is contained in mask pointer list

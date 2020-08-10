@@ -96,9 +96,10 @@ int runUnitTests()
         test_SolverInterface_areSlicesEqual_equalAddresses();
         test_SolverInterface_areSlicesEqual_equalValues();
         test_SolverInterface_isSliceSolved();
-        test_SolverInterface_isBoardSolved_solved();
-        test_SolverInterface_isBoardSolved_notSolved();
-        test_SolverInterface_isBoardSolved_illegal();
+        test_SolverInterface_isBoardSolved_solvedLegal();
+        test_SolverInterface_isBoardSolved_solvedIllegal();
+        test_SolverInterface_isBoardSolved_notSolvedLegal();
+        test_SolverInterface_isBoardSolved_notSolvedIllegal();
         test_BoardManager_isInsideList();
         test_OverlapSolver_getListOfOverlaps_noOverlap();
         test_OverlapSolver_getListOfOverlaps_noCandidateInOverlap();
