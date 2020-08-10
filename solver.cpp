@@ -108,6 +108,7 @@ bool BoardManager::isBoardLegal(mask *board) {
             }
         }
     }
+    delete [] slicer;
     return true;
 }
 
@@ -126,6 +127,7 @@ bool BoardManager::isBoardSolved(mask *board) {
             }
         }
     }
+    delete [] slicer;
     return true;
 }
 
@@ -214,6 +216,7 @@ void SliceSolverInterface::solveBoard(mask *board) {
         solveAllSlices(slicer[j]);
         slicer[j]->reset();
     }
+    delete [] slicer;
 }
 
 void EliminateSolver::eliminate(mask **slice, unsigned int valueToEliminate,
@@ -244,6 +247,7 @@ void OverlapSolver::solveSlice(mask **sliceOrigin, mask **sliceTarget) {
         if (0 < lengthOfOverlaps and lengthOfOverlaps <= 3) {
             eliminate(sliceTarget, candidate, listOfOverlaps, lengthOfOverlaps);
         }
+        delete [] listOfOverlaps;
     }
 }
 
@@ -287,6 +291,8 @@ void OverlapSolver::solveBoard(mask *board) {
     origin = new BoxSlicer(board);
     target = new VerticalSlicer(board);
     solveBoard(board, origin, target);
+    delete origin;
+    delete target;
 }
 
 void OverlapSolver::solveBoard(mask *board, SlicerInterface *origin,
@@ -349,6 +355,7 @@ void GuessSolver::runSolvers(mask *board, bool isVerbose) {
         }
     }
     std::cout << "Done after " << (numLoops + 1) << " loops." << std::endl;
+    delete [] solver;
 }
 
 
