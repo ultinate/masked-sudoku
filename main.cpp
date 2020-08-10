@@ -26,13 +26,13 @@ int main(int argc, char **argv) {
         inputString += tmpString;
     } 
 
-    Parser *p = new Parser(inputString);
-    int parseResult = p->parse();
+    Parser *parser = new Parser(inputString);
+    int parseResult = parser->parse();
     if (parseResult != 0) {
         std::cout << "Parsing not successful. Terminating." << std::endl;
         return parseResult;
     }
-    mask *board = p->getBoard();
+    mask *board = parser->getBoard();
 
     std::cout << "Input board: " << std::endl;
     std::cout << Visualizer::printBoard(board) << std::endl;
@@ -44,6 +44,8 @@ int main(int argc, char **argv) {
     std::cout << "Output board: " << std::endl;
     std::cout << Visualizer::printBoard(board) << std::endl;
 
+    delete parser;
+    delete solver;
     if (globalResult) {
         std::cout << "Solved!" << std::endl;
         return 0;

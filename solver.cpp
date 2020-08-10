@@ -186,8 +186,8 @@ void DetermineSolver::solveSlice(mask **slice) {
     if (!isEqual) {
         BoardManager::deepCopySlice(slice, sliceAfter);
     }
-    delete sliceT;
-    delete sliceAfter;
+    delete [] sliceT;
+    delete [] sliceAfter;
 }
 
 
@@ -390,7 +390,7 @@ bool GuessSolver::solveBoard(mask *board, bool isVerbose, int numberOfGuesses) {
                         // revert guess
                         BoardManager::deepCopyBoard(board, backupBoard);
                     }
-                    delete backupBoard;
+                    delete [] backupBoard;
                 }
             }
         }
