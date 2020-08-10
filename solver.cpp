@@ -1,4 +1,6 @@
 #include <bitset>
+#include <chrono>
+#include <thread>
 #include "parser.hpp"
 #include "visualizer.hpp"
 #include "parser.hpp"
@@ -42,6 +44,12 @@ void BoardManager::copySlice(mask **sliceTo, mask **sliceFrom) {
 void BoardManager::deepCopySlice(mask **sliceTo, mask **sliceFrom) {
     for (int i = 0; i < N; i++) {
         *sliceTo[i] = *sliceFrom[i];
+    }
+}
+
+void BoardManager::deepCopyBoard(mask *boardTo, mask *boardFrom) {
+    for (int i = 0; i < N*N; i++) {
+        boardTo[i] = boardFrom[i];
     }
 }
 
@@ -305,3 +313,87 @@ void OverlapSolver::eliminate(mask **slice, unsigned int valueToEliminate,
     }
 }
 
+
+/**
+ * GuessSolver
+ */
+
+/**
+ * Apply all solvers to all slices.
+ *
+ * This method applies all deterministric solvers as long as some progress
+ * is made. A maximum of N*N*N = 729 loops are needed if we assume that -
+ * in each loop - at least one bit changes.
+ */
+void GuessSolver::runSolvers(mask *board, bool isVerbose) {
+    int maxLoops = N * N * N;
+    int infoLoops = 1;
+    const int solverLength = 3;
+    SolverInterface *solver[solverLength];
+    solver[0] = new DetermineSolver();
+    solver[1] = new EliminateSolver();
+    solver[2] = new OverlapSolver();
+    int numLoops;
+    // TODO: If verbose option is used, users won't like waiting 730 seconds.
+    // Skip loops if nothing happens anymore
+    for (numLoops = 0; numLoops < maxLoops; numLoops++) {
+        for (int i = 0; i < solverLength; i++) {
+            solver[i]->solveBoard(board);
+        }
+        if (isVerbose and (numLoops % infoLoops == 0)) {
+            std::cout << "\n\n" << std::endl;
+            std::cout << "Loop " << (numLoops + 1) << " ..." << std::endl;
+            std::cout << Visualizer::printBoard(board) << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            std::cout.flush();
+        }
+    }
+    std::cout << "Done after " << (numLoops + 1) << " loops." << std::endl;
+}
+
+
+/**
+ * Solve the board
+ *
+ * This method tries to apply all solvers, then guesses remaining
+ * locations recursively.
+ */
+bool GuessSolver::solveBoard(mask *board, bool isVerbose) {
+    return solveBoard(board, isVerbose, 0);
+}
+bool GuessSolver::solveBoard(mask *board, bool isVerbose, int numberOfGuesses) {
+    std::cout << "solveBoard with " << numberOfGuesses << " guesses." << std::endl;
+    runSolvers(board, isVerbose);
+
+    if (BoardManager::isBoardSolved(board)) {
+        return true;
+    }
+    if (!BoardManager::isBoardLegal(board)) {
+        return false;
+    }
+    if (numberOfGuesses > N*N) {
+        return false;
+    }
+    for (int i = 0; i < N * N; i++) {
+        if (!Parser::isOnlyOneBit(board[i])) {
+            // This is an unsolved field. Let's try a guess.
+            for (int guess = 1; guess < N + 1; guess++) {
+                if (Parser::isBitSet(board[i], guess)) {
+                    // This is a legal guess. Let's apply it.
+                    mask *backupBoard = new mask[N*N];
+                    BoardManager::deepCopyBoard(backupBoard, board);
+                    board[i] = Parser::getMaskFromInt(guess);
+                    if (solveBoard(board, isVerbose, numberOfGuesses + 1)) {
+                        return true;
+                    }
+                    else {
+                        // revert guess
+                        BoardManager::deepCopyBoard(board, backupBoard);
+                    }
+                    delete backupBoard;
+                }
+            }
+        }
+    }
+    return false;
+}

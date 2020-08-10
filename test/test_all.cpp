@@ -93,6 +93,7 @@ int runUnitTests()
         test_SolverInterface_transposeSlice_simple();
         test_SolverInterface_copySlice();
         test_SolverInterface_deepCopySlice();
+        test_SolverInterface_deepCopyBoard();
         test_SolverInterface_areSlicesEqual_equalAddresses();
         test_SolverInterface_areSlicesEqual_equalValues();
         test_SolverInterface_isSliceSolved();

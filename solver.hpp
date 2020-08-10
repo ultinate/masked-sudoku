@@ -38,6 +38,11 @@ class BoardManager {
         static void deepCopySlice(mask **sliceTo, mask **sliceFrom);
 
         /**
+         * (Deep) Copy values in boardFrom to boardTo
+         */
+        static void deepCopyBoard(mask *boardTo, mask *boardFrom);
+
+        /**
          * Check whether two slices point to the same addresses
          *
          * This implies that the two slices also have the same values.
@@ -207,12 +212,21 @@ class OverlapSolver : public SolverInterface {
 /**
  * GuessSolver
  *
- * (not implemented yet)
  * If stuck, guess a single (possible) number and continue with 
  * the other solvers until solved.
  * If this gives a solved (and valid) board, we're done. Otherwise,
  * revert the guess and guess differently.
  */
 
+class GuessSolver {
+    // TODO: Make this inherit from SolverInterface, too.
+    public:
+        GuessSolver() {}
+        ~GuessSolver() {}
+        std::string getName() { return "GuessSolver"; }
+        bool solveBoard(mask *board, bool isVerbose);
+        bool solveBoard(mask *board, bool isVerbose, int numberOfGuesses);
+        void runSolvers(mask *board, bool isVerbose);
+};
 
 #endif

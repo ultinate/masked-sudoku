@@ -32,7 +32,7 @@ test : $(OUTFILE_TEST)
 	$(OUTFILE_TEST)
 
 run: $(OUTFILE)
-	cat in-hr.txt | ./$(OUTFILE)
+	cat in/in-hr.txt | ./$(OUTFILE)
 
 check : 
 	cppcheck .

@@ -63,6 +63,24 @@ mask ** getTestSliceFull() {
     return slicePtr;
 }
 
+mask * getTestBoard() {
+    mask *board = new mask[N*N];
+    std::string input =
+        "123......"
+        "456......"
+        "789......"
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        ".........";
+    Parser *p = new Parser(input);
+    p->parse();
+    board = p->getBoard();
+    return board;
+}
+
 void test_OverlapSolver_boxToColumn() {
     std::string input =
         "........."
@@ -474,6 +492,44 @@ void test_SolverInterface_deepCopySlice() {
     }
     TEST(BoardManager::areSliceValuesEqual(slice, sliceCopy));
     TEST(!(BoardManager::areSlicesEqual(slice, sliceCopy)));
+}
+
+void test_SolverInterface_deepCopyBoard() {
+    mask *board = getTestBoard();
+    std::string expected =
+        "123......"
+        "456......"
+        "789......"
+        "........."
+        "........."
+        "........."
+        "........."
+        "........."
+        ".........";
+    TEST(expected == Visualizer::printBoardMini(board));
+
+    mask *boardCopy = new mask[N*N];
+    for (int i = 0; i < N*N; i++) {
+        boardCopy[i] = 0x1;
+    }
+    BoardManager::deepCopyBoard(boardCopy, board);
+
+    // values must be equal
+    TEST(expected == Visualizer::printBoardMini(boardCopy));
+    TEST(boardCopy[0] == 0b000000001);
+    TEST(boardCopy[1] == 0b000000010);
+    TEST(boardCopy[2] == 0b000000100);
+    TEST(boardCopy[3] == 0b111111111);
+    TEST(boardCopy[4] == 0b111111111);
+    TEST(boardCopy[5] == 0b111111111);
+    TEST(boardCopy[6] == 0b111111111);
+    TEST(boardCopy[7] == 0b111111111);
+    TEST(boardCopy[8] == 0b111111111);
+    TEST(boardCopy[9] == 0b000001000);
+    TEST(boardCopy[80] == 0b111111111);
+
+    // pointers must not be equal
+    TEST(boardCopy != board);
 }
 
 void test_SolverInterface_areSlicesEqual_equalAddresses() {

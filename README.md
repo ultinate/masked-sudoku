@@ -54,8 +54,8 @@ A sudoku must follow these rules:
   - **OverlapSolver**: If in a slice _s1_, all possible locations of a
     certain number lie within another slice _s2_, eliminate that number
     from other locations inside _s2_ which do not overlap with _s1_.
-  - **GuessSolver** (not implemented yet): If stuck, guess a single number
-    in a slice and continue with the other two solvers until solved.
-    If this gives a solved (and valid) board, we're done. Otherwise,
-    revert the guess and guess differently.
+  - **GuessSolver**: If stuck, guess a single number in any open location and
+    continue with the other solvers until solved. If this gives a solved
+    (and valid) board, we're done. Otherwise, revert the guess and guess
+    differently.
 
