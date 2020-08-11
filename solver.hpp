@@ -219,9 +219,13 @@ class OverlapSolver : public SolverInterface {
  */
 
 class GuessSolver {
+    private:
+        static const int solverLength = 3;
+        SolverInterface *solvers[solverLength];
+
     // TODO: Make this inherit from SolverInterface, too.
     public:
-        GuessSolver() {}
+        GuessSolver();
         ~GuessSolver() {}
         std::string getName() { return "GuessSolver"; }
         bool solveBoard(mask *board, bool isVerbose);

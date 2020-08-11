@@ -318,6 +318,11 @@ void OverlapSolver::eliminate(mask **slice, unsigned int valueToEliminate,
  * GuessSolver
  */
 
+GuessSolver::GuessSolver() {
+    solvers[0] = new DetermineSolver();
+    solvers[1] = new EliminateSolver();
+    solvers[2] = new OverlapSolver();
+}
 /**
  * Apply all solvers to all slices.
  *
@@ -328,17 +333,12 @@ void OverlapSolver::eliminate(mask **slice, unsigned int valueToEliminate,
 void GuessSolver::runSolvers(mask *board, bool isVerbose) {
     int maxLoops = N * N * N;
     int infoLoops = 1;
-    const int solverLength = 3;
-    SolverInterface *solver[solverLength];
-    solver[0] = new DetermineSolver();
-    solver[1] = new EliminateSolver();
-    solver[2] = new OverlapSolver();
     int numLoops;
     // TODO: If verbose option is used, users won't like waiting 730 seconds.
     // Skip loops if nothing happens anymore
     for (numLoops = 0; numLoops < maxLoops; numLoops++) {
         for (int i = 0; i < solverLength; i++) {
-            solver[i]->solveBoard(board);
+            solvers[i]->solveBoard(board);
         }
         if (isVerbose and (numLoops % infoLoops == 0)) {
             std::cout << "\n\n" << std::endl;
@@ -348,7 +348,6 @@ void GuessSolver::runSolvers(mask *board, bool isVerbose) {
             std::cout.flush();
         }
     }
-    std::cout << "Done after " << (numLoops + 1) << " loops." << std::endl;
 }
 
 
@@ -362,7 +361,7 @@ bool GuessSolver::solveBoard(mask *board, bool isVerbose) {
     return solveBoard(board, isVerbose, 0);
 }
 bool GuessSolver::solveBoard(mask *board, bool isVerbose, int numberOfGuesses) {
-    std::cout << "solveBoard with " << numberOfGuesses << " guesses." << std::endl;
+
     runSolvers(board, isVerbose);
 
     if (BoardManager::isBoardSolved(board)) {
