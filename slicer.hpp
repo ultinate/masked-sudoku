@@ -13,65 +13,57 @@
  */
 class SlicerInterface {
     public:
+        mask *board;
+        virtual mask ** init(mask *board);
         virtual mask ** nextSlice() = 0;
         virtual bool isDone() = 0;
-        virtual std::string getName() = 0;
         virtual void reset() = 0;
-        virtual void printInfo(mask *board);
 };
 
 
 class HorizontalSlicer : public SlicerInterface {
     private:
-        mask *board;
         int row;
     public:
-        HorizontalSlicer(mask *board);
+        HorizontalSlicer() {}
         ~HorizontalSlicer() {}
         mask ** nextSlice();
         bool isDone();
-        std::string getName();
         void reset();
 };
 
 
 class VerticalSlicer : public SlicerInterface {
     private:
-        mask *board;
         int col;
     public:
-        VerticalSlicer(mask *board);
+        VerticalSlicer() {}
         ~VerticalSlicer() {}
         mask ** nextSlice();
         bool isDone();
-        std::string getName();
         void reset();
 };
 
 
 class BoxSlicer : public SlicerInterface {
     private:
-        mask *board;
         int field;
     public:
-        BoxSlicer(mask *board);
+        BoxSlicer() {}
         ~BoxSlicer() {}
         mask ** nextSlice();
         bool isDone();
-        std::string getName();
         void reset();
 };
 
 class DiagonalSlicer : public SlicerInterface {
     private:
-        mask *board;
         int selection;
     public:
-        DiagonalSlicer(mask *board);
+        DiagonalSlicer() {}
         ~DiagonalSlicer() {}
         mask ** nextSlice();
         bool isDone();
-        std::string getName();
         void reset();
 };
 

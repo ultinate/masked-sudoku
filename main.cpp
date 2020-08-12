@@ -8,7 +8,7 @@
 
 
 int main(int argc, char **argv) {
-    std::cout << "simple sudoku solver, v 0.9.0" << std::endl;
+    std::cout << "simple sudoku solver, v 0.9.1" << std::endl;
     bool isVerbose = false;
     if (argc > 1) {
         if (strcmp(argv[1], "-v") == 0 or strcmp(argv[1], "--verbose") == 0) {
@@ -26,26 +26,24 @@ int main(int argc, char **argv) {
         inputString += tmpString;
     } 
 
-    Parser *parser = new Parser(inputString);
-    int parseResult = parser->parse();
+    Parser parser(inputString);
+    int parseResult = parser.parse();
     if (parseResult != 0) {
         std::cout << "Parsing not successful. Terminating." << std::endl;
         return parseResult;
     }
-    mask *board = parser->getBoard();
+    mask *board = parser.getBoard();
 
     std::cout << "Input board: " << std::endl;
     std::cout << Visualizer::printBoard(board) << std::endl;
 
     std::cout << "Solving board ..." << std::endl;
-    GuessSolver *solver = new GuessSolver();
-    int globalResult = solver->solveBoard(board, isVerbose);
+    GuessSolver solver;
+    int globalResult = solver.solveBoard(board, isVerbose);
  
     std::cout << "Output board: " << std::endl;
     std::cout << Visualizer::printBoard(board) << std::endl;
 
-    delete parser;
-    delete solver;
     if (globalResult) {
         std::cout << "Solved!" << std::endl;
         return 0;
@@ -55,4 +53,3 @@ int main(int argc, char **argv) {
         return -1;
     }
 }
-

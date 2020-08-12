@@ -6,25 +6,15 @@
 /**
  * SlicerInterface
  */
-void SlicerInterface::printInfo(mask *board) {
-    // std::cout << getName() << ". " <<
-        // "Board at: " << board << ". [0]: " << board[0] <<
-        // std::endl;
+mask ** SlicerInterface::init(mask *board) {
+    this->reset();
+    this->board = board;
+    return this->nextSlice();
 }
 
 /**
  * HorizontalSlicer
  */
-HorizontalSlicer::HorizontalSlicer(mask *board)
-    : board(board) {
-    row = 0;
-    printInfo(board);
-}
-
-std::string HorizontalSlicer::getName() {
-    return "Horizontal slices";
-}
-
 mask ** HorizontalSlicer::nextSlice() {
     mask **slice = new mask*[N];
     for (int i = 0; i < N; i++) {
@@ -46,15 +36,6 @@ void HorizontalSlicer::reset() {
 /**
  * VerticalSlicer
  */
-VerticalSlicer::VerticalSlicer(mask *board) : board(board) {
-    col = 0;
-    printInfo(board);
-}
-
-std::string VerticalSlicer::getName() {
-    return "Vertical slices";
-}
-
 mask ** VerticalSlicer::nextSlice() {
     mask **slice = new mask*[N];
     for (int i = 0; i < N; i++) {
@@ -76,20 +57,11 @@ void VerticalSlicer::reset() {
 /**
  * BoxSlicer
  */
-BoxSlicer::BoxSlicer(mask *board) : board(board) {
-    field = 0;
-    printInfo(board);
-}
-
-std::string BoxSlicer::getName() {
-    return "Box slices";
-}
-
 mask ** BoxSlicer::nextSlice() {
+    mask **slice = new mask*[N];
     int col = field % 3;
     int row = field / 3;
     int topleft = col * 3 + row * 3 * N;
-    mask **slice = new mask*[N];
     for (int i = 0; i < N; i++) {
         int plusCol = i % 3;
         int plusRow = i / 3;
@@ -111,15 +83,6 @@ void BoxSlicer::reset() {
 /**
  * DiagonalSlicer
  */
-DiagonalSlicer::DiagonalSlicer(mask *board) : board(board) {
-    selection = 0;
-    printInfo(board);
-}
-
-std::string DiagonalSlicer::getName() {
-    return "Diagonal slices";
-}
-
 mask ** DiagonalSlicer::nextSlice() {
     mask **slice = new mask*[N];
     if (selection == 0) {

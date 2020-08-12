@@ -125,9 +125,9 @@ void test_EliminateSolver_box() {
     Parser *p = new Parser(input);
     p->parse();
     mask *board = p->getBoard();
-    SlicerInterface *slicer = new BoxSlicer(board);
+    SlicerInterface *slicer = new BoxSlicer();
     SliceSolverInterface *solver = new EliminateSolver();
-    solver->solveAllSlices(slicer);
+    solver->solveAllSlices(slicer, board);
     std::string expected =
         "123......"
         "456......"
@@ -157,20 +157,20 @@ void test_solvers_combined() {
     p->parse();
     mask *board = p->getBoard();
 
-    SlicerInterface *slicer = new HorizontalSlicer(board);
+    SlicerInterface *slicer = new HorizontalSlicer();
     SliceSolverInterface *solver = new EliminateSolver();
-    solver->solveAllSlices(slicer);
+    solver->solveAllSlices(slicer, board);
     
-    slicer = new BoxSlicer(board);
-    solver->solveAllSlices(slicer);
+    slicer = new BoxSlicer();
+    solver->solveAllSlices(slicer, board);
 
     solver = new DetermineSolver();
-    slicer = new BoxSlicer(board);
-    solver->solveAllSlices(slicer);
+    slicer = new BoxSlicer();
+    solver->solveAllSlices(slicer, board);
 
     solver = new EliminateSolver();
-    slicer = new BoxSlicer(board);
-    solver->solveAllSlices(slicer);
+    slicer = new BoxSlicer();
+    solver->solveAllSlices(slicer, board);
 
     std::string expected =
         "123..69.."
@@ -199,9 +199,9 @@ void test_EliminateSolver_horizontal() {
     Parser *p = new Parser(inputString);
     p->parse();
     mask *board = p->getBoard();
-    SlicerInterface *slicer = new HorizontalSlicer(board);
+    SlicerInterface *slicer = new HorizontalSlicer();
     SliceSolverInterface *solver = new EliminateSolver();
-    solver->solveAllSlices(slicer);
+    solver->solveAllSlices(slicer, board);
     std::string expected =
         "123456789"
         "........."
@@ -229,9 +229,9 @@ void test_EliminateSolver_vertical() {
     Parser *p = new Parser(inputString);
     p->parse();
     mask *board = p->getBoard();
-    SlicerInterface *slicer = new VerticalSlicer(board);
+    SlicerInterface *slicer = new VerticalSlicer();
     SliceSolverInterface *solver = new EliminateSolver();
-    solver->solveAllSlices(slicer);
+    solver->solveAllSlices(slicer, board);
     std::string expected =
         "........1"
         "........2"
@@ -260,12 +260,12 @@ void test_EliminateSolver_horizontalVertical() {
     p->parse();
     mask *board = p->getBoard();
 
-    SlicerInterface *slicer = new HorizontalSlicer(board);
+    SlicerInterface *slicer = new HorizontalSlicer();
     SliceSolverInterface *solver = new EliminateSolver();
-    solver->solveAllSlices(slicer);
+    solver->solveAllSlices(slicer, board);
 
-    slicer = new VerticalSlicer(board);
-    solver->solveAllSlices(slicer);
+    slicer = new VerticalSlicer();
+    solver->solveAllSlices(slicer, board);
 
     std::string expected =
         "6.......1"

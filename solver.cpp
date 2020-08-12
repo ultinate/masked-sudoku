@@ -88,7 +88,9 @@ bool BoardManager::isSliceLegal(mask **slice) {
 
 bool BoardManager::isSliceSolved(mask **slice) {
     bool isFilled = isSolvedDetail(slice);
-    bool isCorrect = isSolvedDetail(transposeSlice(slice));
+    mask **sliceT = transposeSlice(slice);
+    bool isCorrect = isSolvedDetail(sliceT);
+    delete [] sliceT;
     return isFilled && isCorrect;
 }
 
@@ -96,17 +98,24 @@ bool BoardManager::isBoardLegal(mask *board) {
     // TODO: Contains duplicate code. Refactor.
     int slicerLength = 3;
     SlicerInterface *slicer[slicerLength];
-    slicer[0] = new HorizontalSlicer(board);
-    slicer[1] = new VerticalSlicer(board);
-    slicer[2] = new BoxSlicer(board);
+    slicer[0] = new HorizontalSlicer();
+    slicer[1] = new VerticalSlicer();
+    slicer[2] = new BoxSlicer();
+    mask **slice;
     for (int i = 0; i < slicerLength; i++) {
-        for (mask **slice = slicer[i]->nextSlice();
+        for (slice = slicer[i]->init(board);
                 !slicer[i]->isDone();
                 slice = slicer[i]->nextSlice()) {
             if (!isSliceLegal(slice)) {
+                delete [] slice;
                 return false;
             }
+            delete [] slice;
         }
+    }
+    delete [] slice;
+    for (int i = 0; i < slicerLength; i++) {
+        delete slicer[i];
     }
     return true;
 }
@@ -114,17 +123,24 @@ bool BoardManager::isBoardLegal(mask *board) {
 bool BoardManager::isBoardSolved(mask *board) {
     int slicerLength = 3;
     SlicerInterface *slicer[slicerLength];
-    slicer[0] = new HorizontalSlicer(board);
-    slicer[1] = new VerticalSlicer(board);
-    slicer[2] = new BoxSlicer(board);
+    slicer[0] = new HorizontalSlicer();
+    slicer[1] = new VerticalSlicer();
+    slicer[2] = new BoxSlicer();
+    mask **slice;
     for (int i = 0; i < slicerLength; i++) {
-        for (mask **slice = slicer[i]->nextSlice();
+        for (slice = slicer[i]->init(board);
                 !slicer[i]->isDone();
                 slice = slicer[i]->nextSlice()) {
             if (!isSliceSolved(slice)) {
+                delete [] slice;
                 return false;
             }
+            delete [] slice;
         }
+    }
+    delete [] slice;
+    for (int i = 0; i < slicerLength; i++) {
+        delete slicer[i];
     }
     return true;
 }
@@ -163,11 +179,14 @@ SolverInterface::~SolverInterface() {
  * SliceSolverInterface
  */
 
-void SliceSolverInterface::solveAllSlices(SlicerInterface *slicer) {
-    for (mask **slice = slicer->nextSlice();
+void SliceSolverInterface::solveAllSlices(SlicerInterface *slicer,
+        mask *board) {
+    mask **slice;
+    for (slice = slicer->init(board);
             !slicer->isDone();
             slice = slicer->nextSlice()) {
         solveSlice(slice);
+        delete [] slice;
     }
 }
 
@@ -207,12 +226,14 @@ void EliminateSolver::solveSlice(mask **slice) {
 void SliceSolverInterface::solveBoard(mask *board) {
     int slicerLength = 3;
     SlicerInterface *slicer[slicerLength];
-    slicer[0] = new HorizontalSlicer(board);
-    slicer[1] = new VerticalSlicer(board);
-    slicer[2] = new BoxSlicer(board);
+    slicer[0] = new HorizontalSlicer();
+    slicer[1] = new VerticalSlicer();
+    slicer[2] = new BoxSlicer();
     for (int j = 0; j < slicerLength; j++) {
-        solveAllSlices(slicer[j]);
-        slicer[j]->reset();
+        solveAllSlices(slicer[j], board);
+    }
+    for (int i = 0; i < slicerLength; i++) {
+        delete slicer[i];
     }
 }
 
@@ -244,6 +265,7 @@ void OverlapSolver::solveSlice(mask **sliceOrigin, mask **sliceTarget) {
         if (0 < lengthOfOverlaps and lengthOfOverlaps <= 3) {
             eliminate(sliceTarget, candidate, listOfOverlaps, lengthOfOverlaps);
         }
+        delete [] listOfOverlaps;
     }
 }
 
@@ -272,34 +294,44 @@ void OverlapSolver::solveBoard(mask *board) {
     SlicerInterface *origin;
     SlicerInterface *target;
     // Horizontal-to-box
-    origin = new HorizontalSlicer(board);
-    target = new BoxSlicer(board);
+    origin = new HorizontalSlicer();
+    target = new BoxSlicer();
     solveBoard(board, origin, target);
+    delete origin;
+    delete target;
     // Vertical-to-box
-    origin = new VerticalSlicer(board);
-    target = new BoxSlicer(board);
+    origin = new VerticalSlicer();
+    target = new BoxSlicer();
     solveBoard(board, origin, target);
+    delete origin;
+    delete target;
     // Box-to-horizontal
-    origin = new BoxSlicer(board);
-    target = new HorizontalSlicer(board);
+    origin = new BoxSlicer();
+    target = new HorizontalSlicer();
     solveBoard(board, origin, target);
+    delete origin;
+    delete target;
     // Box-to-vertical
-    origin = new BoxSlicer(board);
-    target = new VerticalSlicer(board);
+    origin = new BoxSlicer();
+    target = new VerticalSlicer();
     solveBoard(board, origin, target);
+    delete origin;
+    delete target;
 }
 
 void OverlapSolver::solveBoard(mask *board, SlicerInterface *origin,
         SlicerInterface *target) {
     mask **sliceOrigin;
     mask **sliceTarget;
-    for (sliceOrigin = origin->nextSlice(),
-            sliceTarget = target->nextSlice();
+    for (sliceOrigin = origin->init(board),
+            sliceTarget = target->init(board);
             !origin->isDone() && !target->isDone();
             sliceOrigin = origin->nextSlice(),
             sliceTarget = target->nextSlice()
             ) {
         solveSlice(sliceOrigin, sliceTarget);
+        delete [] sliceOrigin;
+        delete [] sliceTarget;
     }
 }
 
@@ -319,10 +351,17 @@ void OverlapSolver::eliminate(mask **slice, unsigned int valueToEliminate,
  */
 
 GuessSolver::GuessSolver() {
-    solvers[0] = new DetermineSolver();
-    solvers[1] = new EliminateSolver();
-    solvers[2] = new OverlapSolver();
+    // DEBUG
+    solvers[0] = new EliminateSolver();
+    solvers[1] = new DetermineSolver();
+    //solvers[2] = new OverlapSolver();
 }
+GuessSolver::~GuessSolver() {
+    for (int i = 0; i < solverLength; i++) {
+        delete solvers[i];
+    }
+}
+
 /**
  * Apply all solvers to all slices.
  *
@@ -331,12 +370,9 @@ GuessSolver::GuessSolver() {
  * in each loop - at least one bit changes.
  */
 void GuessSolver::runSolvers(mask *board, bool isVerbose) {
-    int maxLoops = N * N * N;
-    int infoLoops = 1;
-    int numLoops;
     // TODO: If verbose option is used, users won't like waiting 730 seconds.
     // Skip loops if nothing happens anymore
-    for (numLoops = 0; numLoops < maxLoops; numLoops++) {
+    for (int numLoops = 0; numLoops < maxLoops; numLoops++) {
         for (int i = 0; i < solverLength; i++) {
             solvers[i]->solveBoard(board);
         }
@@ -350,18 +386,23 @@ void GuessSolver::runSolvers(mask *board, bool isVerbose) {
     }
 }
 
-
 /**
  * Solve the board
  *
  * This method tries to apply all solvers, then guesses remaining
- * locations recursively.
+ * locations recursively. Uses breadth-first approach to avoid long
+ * search in deep trees.
  */
 bool GuessSolver::solveBoard(mask *board, bool isVerbose) {
-    return solveBoard(board, isVerbose, 0);
+    for (int i = 0; i < N*N; i++) {
+        maxGuessDepth = i;
+        if (solveBoard(board, isVerbose, 0)) {
+            return true;
+        }
+    }
+    return false;
 }
-bool GuessSolver::solveBoard(mask *board, bool isVerbose, int numberOfGuesses) {
-
+bool GuessSolver::solveBoard(mask *board, bool isVerbose, int guessDepth) {
     runSolvers(board, isVerbose);
 
     if (BoardManager::isBoardSolved(board)) {
@@ -370,26 +411,28 @@ bool GuessSolver::solveBoard(mask *board, bool isVerbose, int numberOfGuesses) {
     if (!BoardManager::isBoardLegal(board)) {
         return false;
     }
-    if (numberOfGuesses > N*N) {
+    if (guessDepth > maxGuessDepth) {
         return false;
     }
-    for (int i = 0; i < N * N; i++) {
-        if (!Parser::isOnlyOneBit(board[i])) {
+    for (int guessPosition = 0; guessPosition < N * N; guessPosition++) {
+        if (!Parser::isOnlyOneBit(board[guessPosition])) {
             // This is an unsolved field. Let's try a guess.
             for (int guess = 1; guess < N + 1; guess++) {
-                if (Parser::isBitSet(board[i], guess)) {
+                if (Parser::isBitSet(board[guessPosition], guess)) {
                     // This is a legal guess. Let's apply it.
-                    mask *backupBoard = new mask[N*N];
-                    BoardManager::deepCopyBoard(backupBoard, board);
-                    board[i] = Parser::getMaskFromInt(guess);
-                    if (solveBoard(board, isVerbose, numberOfGuesses + 1)) {
+                    mask *guessBoard = new mask[N*N];
+                    BoardManager::deepCopyBoard(guessBoard, board);
+                    guessBoard[guessPosition] = Parser::getMaskFromInt(guess);
+                    if (solveBoard(guessBoard, isVerbose, guessDepth + 1)) {
+                        // save guessed board
+                        BoardManager::deepCopyBoard(board, guessBoard);
+                        delete [] guessBoard;
                         return true;
                     }
                     else {
                         // revert guess
-                        BoardManager::deepCopyBoard(board, backupBoard);
+                        delete [] guessBoard;
                     }
-                    delete [] backupBoard;
                 }
             }
         }

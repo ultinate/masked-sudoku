@@ -11,6 +11,9 @@
  * Provide general functions to interact with a board and solvers.
  */
 class BoardManager {
+    private:
+        static bool isSolvedDetail(mask **slice);
+
     public:
         /**
          * Transpose a slice
@@ -91,8 +94,6 @@ class BoardManager {
          */
         static bool isInsideList(mask *needle, mask **haystack,
                 unsigned int haystackLength);
-    private:
-        static bool isSolvedDetail(mask **slice);
 };
 
 
@@ -114,9 +115,9 @@ class SolverInterface {
         virtual std::string getName() = 0;
 
         /**
-         * The board solving magic is happening here.
-         *
          * Tries to solve a board in-place.
+         *
+         * The board solving magic is happening here.
          */
         virtual void solveBoard(mask *board) = 0;
 };
@@ -133,7 +134,7 @@ class SliceSolverInterface : public SolverInterface {
         /**
          * Helper to apply a solver to all slices of a board
          */
-        void solveAllSlices(SlicerInterface *slicer);
+        void solveAllSlices(SlicerInterface *slicer, mask *board);
         void solveBoard(mask *board);
 
         /**
@@ -220,17 +221,20 @@ class OverlapSolver : public SolverInterface {
 
 class GuessSolver {
     private:
-        static const int solverLength = 3;
+        static const int solverLength = 2;  // DEBUG
         SolverInterface *solvers[solverLength];
+        static const int maxLoops = N * N * N;
+        static const int infoLoops = 1;
+        int maxGuessDepth = 0;
 
     // TODO: Make this inherit from SolverInterface, too.
     public:
         GuessSolver();
-        ~GuessSolver() {}
+        ~GuessSolver();
         std::string getName() { return "GuessSolver"; }
-        bool solveBoard(mask *board, bool isVerbose);
-        bool solveBoard(mask *board, bool isVerbose, int numberOfGuesses);
-        void runSolvers(mask *board, bool isVerbose);
+        bool solveBoard(mask *, bool);
+        bool solveBoard(mask *, bool, int);
+        void runSolvers(mask *, bool);
 };
 
 #endif
