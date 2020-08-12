@@ -13,7 +13,7 @@ typedef unsigned short int mask;
 class Parser {
     private:
         std::string inputString;
-        mask * unsolvedBoard;
+        mask unsolvedBoard[N*N];
 
     public:
         /**

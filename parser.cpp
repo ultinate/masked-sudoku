@@ -1,15 +1,21 @@
 #include "parser.hpp"
 
 
+Parser::Parser(std::string inputString) {
+    this->inputString = inputString;
+}
+
 unsigned int Parser::inputCharToInt(char c) {
-    if (c == '.')
+    if (c == '.' or c == ' ' or c == '+') {
         return 0;
-    else
+    }
+    else {
         return c - '0';
+    }
 }
 
 mask Parser::inputCharToMask(char c) {
-    if (c == '.') {
+    if (c == '.' or c == ' ' or c == '+') {
         return 0b111111111;
     }
     else {
@@ -46,11 +52,6 @@ unsigned int Parser::log2(mask m) {
         }
     }
     return 0;
-}
-
-Parser::Parser(std::string inputString) {
-    this->inputString = inputString;
-    this->unsolvedBoard = new mask[N*N];
 }
 
 bool Parser::isBitSet(mask m, unsigned int i) {
