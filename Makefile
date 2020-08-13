@@ -1,9 +1,9 @@
 CXX=g++
 RM=rm -f
-CFLAGS = -Wall -g --coverage
+CFLAGS = -Wall -g --coverage -p
 
-OUTFILE=sudoku.out
-OUTFILE_TEST=test/test_sudoku.out
+OUTFILE=sudoku
+OUTFILE_TEST=test/test_sudoku
 SRCS=parser.cpp slicer.cpp solver.cpp
 OBJS=$(subst .cpp,.o,$(SRCS))
 TEST_SRCS=test/test_parser.hpp test/test_slicer.hpp test/test_solver.hpp
@@ -40,3 +40,6 @@ check :
 coverage :
 	lcov --capture --directory . --output-file coverage.info
 	genhtml coverage.info --output-directory out
+
+profile :
+	gprof sudoku gmon.out | less
