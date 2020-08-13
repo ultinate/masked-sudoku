@@ -8,7 +8,7 @@
 
 
 int main(int argc, char **argv) {
-    std::cout << "simple sudoku solver, v 0.9.1" << std::endl;
+    std::cout << "simple sudoku solver, v 1.0.0" << std::endl;
     bool isVerbose = false;
     if (argc > 1) {
         if (strcmp(argv[1], "-v") == 0 or strcmp(argv[1], "--verbose") == 0) {
