@@ -64,7 +64,6 @@ mask ** getTestSliceFull() {
 }
 
 mask * getTestBoard() {
-    mask *board = new mask[N*N];
     std::string input =
         "123......"
         "456......"
@@ -75,9 +74,9 @@ mask * getTestBoard() {
         "........."
         "........."
         ".........";
-    Parser *p = new Parser(input);
-    p->parse();
-    board = p->getBoard();
+    Parser *parser = new Parser(input);
+    parser->parse();
+    mask *board = parser->getBoard();
     return board;
 }
 
@@ -92,11 +91,10 @@ void test_OverlapSolver_boxToColumn() {
         "7......89"
         ".34......"
         ".56......";
-    Parser *p = new Parser(input);
-    p->parse();
-    mask *board = p->getBoard();
-
-    SolverInterface *solver = new OverlapSolver();
+    Parser *parser = new Parser(input);
+    parser->parse();
+    mask *board = parser->getBoard();
+    SolverInterface *solver = new OverlapSolver;
     solver->solveBoard(board);
     std::string expected =
         "........."
@@ -109,6 +107,7 @@ void test_OverlapSolver_boxToColumn() {
         ".34......"
         ".56......";
     TEST(expected == Visualizer::printBoardMini(board));
+    delete parser;
 }
 
 void test_EliminateSolver_box() {
@@ -122,9 +121,9 @@ void test_EliminateSolver_box() {
         "........."
         "........."
         ".........";
-    Parser *p = new Parser(input);
-    p->parse();
-    mask *board = p->getBoard();
+    Parser *parser = new Parser(input);
+    parser->parse();
+    mask *board = parser->getBoard();
     SlicerInterface *slicer = new BoxSlicer();
     SliceSolverInterface *solver = new EliminateSolver();
     solver->solveAllSlices(slicer, board);
@@ -139,7 +138,7 @@ void test_EliminateSolver_box() {
         "........."
         ".........";
     TEST(expected == Visualizer::printBoardMini(board));
-    // std::cout << Visualizer::printBoardMini(board) << std::endl;
+    delete parser;
 }
 
 void test_solvers_combined() {
@@ -153,14 +152,14 @@ void test_solvers_combined() {
         "........."
         "........."
         ".........";
-    Parser *p = new Parser(input);
-    p->parse();
-    mask *board = p->getBoard();
+    Parser *parser = new Parser(input);
+    parser->parse();
+    mask *board = parser->getBoard();
 
     SlicerInterface *slicer = new HorizontalSlicer();
     SliceSolverInterface *solver = new EliminateSolver();
     solver->solveAllSlices(slicer, board);
-    
+   
     slicer = new BoxSlicer();
     solver->solveAllSlices(slicer, board);
 
@@ -183,10 +182,11 @@ void test_solvers_combined() {
         "........."
         ".........";
     TEST(expected == Visualizer::printBoardMini(board));
+    delete parser;
 }
 
 void test_EliminateSolver_horizontal() {
-    std::string inputString =
+    std::string input =
         "12345678."
         "........."
         "........."
@@ -196,9 +196,10 @@ void test_EliminateSolver_horizontal() {
         "........."
         "........."
         ".........";
-    Parser *p = new Parser(inputString);
-    p->parse();
-    mask *board = p->getBoard();
+    Parser *parser = new Parser(input);
+    parser->parse();
+    mask *board = parser->getBoard();
+
     SlicerInterface *slicer = new HorizontalSlicer();
     SliceSolverInterface *solver = new EliminateSolver();
     solver->solveAllSlices(slicer, board);
@@ -213,10 +214,11 @@ void test_EliminateSolver_horizontal() {
         "........."
         ".........";
     TEST(expected == Visualizer::printBoardMini(board));
+    delete parser;
 }
 
 void test_EliminateSolver_vertical() {
-    std::string inputString =
+    std::string input =
         "........."
         "........2"
         "........3"
@@ -226,9 +228,10 @@ void test_EliminateSolver_vertical() {
         "........7"
         "........8"
         "........9";
-    Parser *p = new Parser(inputString);
-    p->parse();
-    mask *board = p->getBoard();
+    Parser *parser = new Parser(input);
+    parser->parse();
+    mask *board = parser->getBoard();
+
     SlicerInterface *slicer = new VerticalSlicer();
     SliceSolverInterface *solver = new EliminateSolver();
     solver->solveAllSlices(slicer, board);
@@ -246,7 +249,7 @@ void test_EliminateSolver_vertical() {
 }
 
 void test_EliminateSolver_horizontalVertical() {
-    std::string inputString =
+    std::string input =
         "6........"
         "........2"
         "........3"
@@ -256,9 +259,9 @@ void test_EliminateSolver_horizontalVertical() {
         "........7"
         "........8"
         "........9";
-    Parser *p = new Parser(inputString);
-    p->parse();
-    mask *board = p->getBoard();
+    Parser *parser = new Parser(input);
+    parser->parse();
+    mask *board = parser->getBoard();
 
     SlicerInterface *slicer = new HorizontalSlicer();
     SliceSolverInterface *solver = new EliminateSolver();
@@ -328,7 +331,7 @@ void test_EliminateSolver_solveSlice_2() {
     TEST(*slice[6] == 0b111101111);
     TEST(*slice[7] == 0b111101111);
     TEST(*slice[8] == 0b111101111);
-} 
+}
 
 void test_DetermineSolver_solveSlice() {
     mask **slice = getTestSliceRow();
@@ -343,7 +346,7 @@ void test_DetermineSolver_solveSlice() {
     TEST(*slice[6] == 0b111101111);
     TEST(*slice[7] == 0b111101111);
     TEST(*slice[8] == 0b111101111);
-} 
+}
 
 void test_DetermineSolver_solveSliceNoChange() {
     mask **slice = getTestSliceFull();
@@ -354,7 +357,7 @@ void test_DetermineSolver_solveSliceNoChange() {
     ds.solveSlice(slicePtr);
     TEST(BoardManager::areSliceValuesEqual(slicePtr, sliceBefore));
 }
- 
+
 void test_EliminateSolver_solveSliceNoChange() {
     mask **slice = getTestSliceFull();
     mask **slicePtr = slice;
@@ -446,7 +449,7 @@ void test_SolverInterface_transposeSlice_simple() {
     TEST(*sliceT[6] == 0b111111111);
     TEST(*sliceT[7] == 0b111111111);
     TEST(*sliceT[8] == 0b111111111);
-} 
+}
 
 void test_SolverInterface_copySlice() {
     mask **slice = getTestSliceFull();
@@ -570,7 +573,7 @@ void test_SolverInterface_isSliceSolved() {
     // not solved yet
     TEST(!BoardManager::isSliceSolved(slicePtr));
     TEST(BoardManager::isSliceLegal(slicePtr));
-    
+   
     // correctly solved
     slice[0] = 0b100000000;
     TEST(BoardManager::isSliceSolved(slicePtr));
@@ -583,7 +586,7 @@ void test_SolverInterface_isSliceSolved() {
 }
 
 void test_SolverInterface_isBoardSolved_solvedLegal() {
-     std::string inputString = 
+     std::string input =
         "491786325"
         "735294816"
         "826531479"
@@ -593,16 +596,17 @@ void test_SolverInterface_isBoardSolved_solvedLegal() {
         "954823761"
         "287615943"
         "613947258";
-    Parser *p = new Parser(inputString);
-    int parseResult = p->parse();
+    Parser *parser = new Parser(input);
+    int parseResult = parser->parse();
+    mask *board = parser->getBoard();
+
     TEST(0 == parseResult);
-    mask *board = p->getBoard();
     TEST(BoardManager::isBoardSolved(board));
     TEST(BoardManager::isBoardLegal(board));
 }
 
 void test_SolverInterface_isBoardSolved_notSolvedLegal() {
-     std::string inputString = 
+     std::string input =
         "..37..4.6"
         "...3.5..."
         "92..6.8.."
@@ -612,16 +616,17 @@ void test_SolverInterface_isBoardSolved_notSolvedLegal() {
         ".3..71..8"
         "..4...7.2"
         "..6...1.3";
-    Parser *p = new Parser(inputString);
-    int parseResult = p->parse();
-    TEST(parseResult == 0);
-    mask *board = p->getBoard();
+    Parser *parser = new Parser(input);
+    int parseResult = parser->parse();
+    mask *board = parser->getBoard();
+
+    TEST(0 == parseResult);
     TEST(!BoardManager::isBoardSolved(board));
     TEST(BoardManager::isBoardLegal(board));
 }
 
 void test_SolverInterface_isBoardSolved_solvedIllegal() {
-     std::string inputString = 
+     std::string input =
         "999999999"
         "735294816"
         "826531479"
@@ -631,16 +636,17 @@ void test_SolverInterface_isBoardSolved_solvedIllegal() {
         "954823761"
         "287615943"
         "613947258";
-    Parser *p = new Parser(inputString);
-    int parseResult = p->parse();
-    TEST(parseResult == 0);
-    mask *board = p->getBoard();
+    Parser *parser = new Parser(input);
+    int parseResult = parser->parse();
+    mask *board = parser->getBoard();
+
+    TEST(0 == parseResult);
     TEST(!BoardManager::isBoardSolved(board));
     TEST(!BoardManager::isBoardLegal(board));
 }
 
 void test_SolverInterface_isBoardSolved_notSolvedIllegal() {
-     std::string inputString = 
+     std::string input =
         "..36..4.6"
         "...3.5..."
         "92..6.8.."
@@ -650,10 +656,11 @@ void test_SolverInterface_isBoardSolved_notSolvedIllegal() {
         ".3..71..8"
         "..4...7.2"
         "..6...1.3";
-    Parser *p = new Parser(inputString);
-    int parseResult = p->parse();
-    TEST(parseResult == 0);
-    mask *board = p->getBoard();
+    Parser *parser = new Parser(input);
+    int parseResult = parser->parse();
+    mask *board = parser->getBoard();
+
+    TEST(0 == parseResult);
     TEST(!BoardManager::isBoardSolved(board));
     TEST(!BoardManager::isBoardLegal(board));
 }
@@ -679,8 +686,8 @@ void test_OverlapSolver_getListOfOverlaps_noOverlap() {
     int candidate = 2;
 
     mask **listOfOverlaps = getTestSlice();  // initialize with any value
-    OverlapSolver *solver = new OverlapSolver();
-    int length = solver->getListOfOverlaps(candidate, listOfOverlaps, 
+    OverlapSolver solver;
+    int length = solver.getListOfOverlaps(candidate, listOfOverlaps,
             slice, sliceTarget);
     TEST(0 == length);
 }
@@ -697,8 +704,8 @@ void test_OverlapSolver_getListOfOverlaps_noCandidateInOverlap() {
     sliceTarget[2] = slice[4];
 
     mask **listOfOverlaps = getTestSlice();  // initialize with any value
-    OverlapSolver *solver = new OverlapSolver();
-    int length = solver->getListOfOverlaps(candidate, listOfOverlaps, 
+    OverlapSolver solver;
+    int length = solver.getListOfOverlaps(candidate, listOfOverlaps,
             slice, sliceTarget);
     TEST(0 == length);
 }
@@ -714,8 +721,8 @@ void test_OverlapSolver_getListOfOverlaps_threeOverlapWithCandidate() {
     sliceTarget[2] = slice[8];
 
     mask **listOfOverlaps = getTestSlice();  // initialize with any value
-    OverlapSolver *solver = new OverlapSolver();
-    int length = solver->getListOfOverlaps(candidate, listOfOverlaps, 
+    OverlapSolver solver;
+    int length = solver.getListOfOverlaps(candidate, listOfOverlaps,
             slice, sliceTarget);
     TEST(3 == length);
 }
@@ -734,9 +741,9 @@ void test_OverlapSolver_eliminate_exceptNothing() {
     TEST(*slice[7] == 0b100010001);
     TEST(*slice[8] == 0b111110011);
 
-    OverlapSolver *solver = new OverlapSolver();
+    OverlapSolver solver;
     mask **sliceOther = new mask*[N];
-    solver->eliminate(slice, 1, sliceOther, 0);
+    solver.eliminate(slice, 1, sliceOther, 0);
 
     TEST(*slice[0] == 0b000000000);
     TEST(*slice[1] == 0b000000010);
@@ -751,10 +758,10 @@ void test_OverlapSolver_eliminate_exceptNothing() {
 
 void test_OverlapSolver_eliminate_exceptOne() {
     mask **slice = getTestSlice();
-    OverlapSolver *solver = new OverlapSolver();
+    OverlapSolver solver;
     mask **sliceOther = new mask*[N];
     sliceOther[0] = slice[3];
-    solver->eliminate(slice, 9, sliceOther, 1);
+    solver.eliminate(slice, 9, sliceOther, 1);
 
     TEST(*slice[0] == 0b000000001);
     TEST(*slice[1] == 0b000000011);
@@ -769,10 +776,10 @@ void test_OverlapSolver_eliminate_exceptOne() {
 
 void test_OverlapSolver_eliminate_exceptAll() {
     mask **slice = getTestSlice();
-    OverlapSolver *solver = new OverlapSolver();
+    OverlapSolver solver;
     mask **sliceOther = new mask*[N];
     BoardManager::copySlice(sliceOther, slice);
-    solver->eliminate(slice, 1, sliceOther, N);
+    solver.eliminate(slice, 1, sliceOther, N);
 
     TEST(*slice[0] == 0b000000001);
     TEST(*slice[1] == 0b000000011);

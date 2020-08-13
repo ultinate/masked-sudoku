@@ -6,7 +6,7 @@
 
 /* Parser unit tests */
 void test_Parser() {
-    std::string inputString = 
+    std::string input =
         "..37..4.6"
         "...3.5..."
         "92..6.8.."
@@ -16,12 +16,12 @@ void test_Parser() {
         ".3..71..8"
         "..4...7.2"
         "..6...1.3";
-    Parser *p = new Parser(inputString);
-    int parseResult = p->parse();
-    TEST(parseResult == 0);
-    mask *board = p->getBoard();
-    std::string expected = inputString;
-    TEST(expected == Visualizer::printBoardMini(board));
+    Parser *parser = new Parser(input);
+    int parseResult = parser->parse();
+    TEST(0 == parseResult);
+    mask *board = parser->getBoard();
+    TEST(input  == Visualizer::printBoardMini(board));
+    delete parser;
 }
 
 void test_inputCharToInt() {

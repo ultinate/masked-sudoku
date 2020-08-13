@@ -14,8 +14,8 @@
 class SlicerInterface {
     public:
         mask *board;
-        virtual mask ** init(mask *board);
-        virtual mask ** nextSlice() = 0;
+        virtual void init(mask *board, mask **slice);
+        virtual void nextSlice(mask **slice) = 0;
         virtual bool isDone() = 0;
         virtual void reset() = 0;
 };
@@ -27,7 +27,7 @@ class HorizontalSlicer : public SlicerInterface {
     public:
         HorizontalSlicer() {}
         ~HorizontalSlicer() {}
-        mask ** nextSlice();
+        void nextSlice(mask **slice);
         bool isDone();
         void reset();
 };
@@ -39,7 +39,7 @@ class VerticalSlicer : public SlicerInterface {
     public:
         VerticalSlicer() {}
         ~VerticalSlicer() {}
-        mask ** nextSlice();
+        void nextSlice(mask **slice);
         bool isDone();
         void reset();
 };
@@ -51,7 +51,7 @@ class BoxSlicer : public SlicerInterface {
     public:
         BoxSlicer() {}
         ~BoxSlicer() {}
-        mask ** nextSlice();
+        void nextSlice(mask **slice);
         bool isDone();
         void reset();
 };
@@ -62,7 +62,7 @@ class DiagonalSlicer : public SlicerInterface {
     public:
         DiagonalSlicer() {}
         ~DiagonalSlicer() {}
-        mask ** nextSlice();
+        void nextSlice(mask **slice);
         bool isDone();
         void reset();
 };

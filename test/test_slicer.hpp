@@ -21,14 +21,12 @@
  * | 1 2 3 | 4 5 6 | 7 8 9 |
  * -------------------------
 */
-mask * getBoard() {
-    mask *board = new mask[N*N];
+void getBoard(mask *board) {
     for (int row = 0; row < N; row++) {
         for (int col = 0; col < N; col++) {
             board[row*N + col] = 0x1 << col;
         }
     }
-    return board;
 }
 
 /**
@@ -48,8 +46,7 @@ mask * getBoard() {
  * | 7 7 7 | 8 8 8 | 9 9 9 |
  * -------------------------
 */
-mask * getBoxedBoard() {
-    mask *board = new mask[N*N];
+void getBoxedBoard(mask *board) {
     for (int row = 0; row < N; row++) {
         for (int col = 0; col < N; col++) {
             unsigned int val = 1;
@@ -65,25 +62,32 @@ mask * getBoxedBoard() {
             board[row*N + col] = 0x1 << (val - 1);
         }
     }
-    return board;
 }
-
-
 
 /**
  * Horizontal Slicer unit tests
  */
 void test_HorizontalSlicer_Next() {
-    mask *board = getBoard();
+    mask *board = new mask[N*N];
+    getBoard(board);
     SlicerInterface *slicer = new HorizontalSlicer();
-    for (mask **slice = slicer->init(board); !slicer->isDone(); slice = slicer->nextSlice()) {
+    mask **slice = new mask*[N];
+    for (slicer->init(board, slice);
+            !slicer->isDone();
+            slicer->nextSlice(slice)) {
         TEST("| 1 2 3 | 4 5 6 | 7 8 9 | " == Visualizer::printSlice(slice));
     }
+    delete [] slice;
     // iterate again
+    mask **slice2 = new mask*[N];
     SlicerInterface *slicer2 = new HorizontalSlicer();
-    for (mask **slice = slicer2->init(board); !slicer2->isDone(); slice = slicer2->nextSlice()) {
-        TEST("| 1 2 3 | 4 5 6 | 7 8 9 | " == Visualizer::printSlice(slice));
+    for (slicer2->init(board, slice2);
+            !slicer2->isDone();
+            slicer2->nextSlice(slice2)) {
+        TEST("| 1 2 3 | 4 5 6 | 7 8 9 | " == Visualizer::printSlice(slice2));
     }
+    delete [] slice2;
+    delete [] board;
 }
 
 std::string getSliceRepresentation(unsigned int *values) {
@@ -103,15 +107,20 @@ std::string getSliceRepresentation(unsigned int *values) {
  * Vertical Slicer unit tests
  */
 void test_VerticalSlicer_Next() {
-    mask *board = getBoard();
+    mask *board = new mask[N*N];
+    getBoard(board);
     SlicerInterface *slicer = new VerticalSlicer();
     unsigned int i = 0;
-    for (mask **slice = slicer->init(board); !slicer->isDone(); slice = slicer->nextSlice(), i++) {
+    mask **slice = new mask*[N];
+    for (slicer->init(board, slice);
+            !slicer->isDone();
+            slicer->nextSlice(slice), i++) {
         unsigned int val = i + 1;
         unsigned int valPtr[9] = {val, val, val, val, val, val, val, val, val};
         std::string expected = getSliceRepresentation(valPtr);
         TEST(expected == Visualizer::printSlice(slice));
     }
+    delete [] board;
 }
 
 
@@ -119,15 +128,21 @@ void test_VerticalSlicer_Next() {
  * Box Slicer unit tests
  */
 void test_BoxSlicer_Next() {
-    mask *board = getBoxedBoard();
+    mask *board = new mask[N*N];
+    getBoxedBoard(board);
     SlicerInterface *slicer = new BoxSlicer();
     unsigned int i = 0;
-    for (mask **slice = slicer->init(board); !slicer->isDone(); slice = slicer->nextSlice(), i++) {
+    mask **slice = new mask*[N];
+    for (slicer->init(board, slice);
+            !slicer->isDone();
+            slicer->nextSlice(slice), i++) {
         unsigned int val = i + 1;
         unsigned int valPtr[9] = {val, val, val, val, val, val, val, val, val};
         std::string expected = getSliceRepresentation(valPtr);
         TEST(expected == Visualizer::printSlice(slice));
     }
+    delete [] slice;
+    delete [] board;
 }
 
 
@@ -135,7 +150,8 @@ void test_BoxSlicer_Next() {
  * Diagonal Slicer unit tests
  */
 void test_DiagonalSlicer_Next() {
-    mask *board = getBoard();
+    mask *board = new mask[N*N];
+    getBoard(board);
     SlicerInterface *slicer = new DiagonalSlicer();
     unsigned int valPtr[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
     std::string expected1 = getSliceRepresentation(valPtr);
@@ -143,8 +159,12 @@ void test_DiagonalSlicer_Next() {
     std::string expected2 = getSliceRepresentation(valPtr2);
     std::string expected[2] = {expected1, expected2};
     unsigned int i = 0;
-    for (mask **slice = slicer->init(board); !slicer->isDone(); slice = slicer->nextSlice(), i++) {
+    mask **slice = new mask*[N];
+    for (slicer->init(board, slice);
+            !slicer->isDone();
+            slicer->nextSlice(slice), i++) {
         TEST(expected[i] == Visualizer::printSlice(slice));
     }
+    delete [] slice;
+    delete [] board;
 }
-

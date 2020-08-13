@@ -6,22 +6,20 @@
 /**
  * SlicerInterface
  */
-mask ** SlicerInterface::init(mask *board) {
+void SlicerInterface::init(mask *board, mask **slice) {
     this->reset();
     this->board = board;
-    return this->nextSlice();
+    this->nextSlice(slice);
 }
 
 /**
  * HorizontalSlicer
  */
-mask ** HorizontalSlicer::nextSlice() {
-    mask **slice = new mask*[N];
+void HorizontalSlicer::nextSlice(mask ** slice) {
     for (int i = 0; i < N; i++) {
         slice[i] = &board[i + row*N];
     }
     ++row;
-    return slice;
 }
 
 bool HorizontalSlicer::isDone() {
@@ -36,13 +34,11 @@ void HorizontalSlicer::reset() {
 /**
  * VerticalSlicer
  */
-mask ** VerticalSlicer::nextSlice() {
-    mask **slice = new mask*[N];
+void VerticalSlicer::nextSlice(mask ** slice) {
     for (int i = 0; i < N; i++) {
         slice[i] = &board[i*N + col];
     }
     ++col;
-    return slice;
 }
 
 bool VerticalSlicer::isDone() {
@@ -57,8 +53,7 @@ void VerticalSlicer::reset() {
 /**
  * BoxSlicer
  */
-mask ** BoxSlicer::nextSlice() {
-    mask **slice = new mask*[N];
+void BoxSlicer::nextSlice(mask ** slice) {
     int col = field % 3;
     int row = field / 3;
     int topleft = col * 3 + row * 3 * N;
@@ -68,7 +63,6 @@ mask ** BoxSlicer::nextSlice() {
         slice[i] = &board[topleft + plusCol + plusRow * N];
     }
     ++field;
-    return slice;
 }
 
 bool BoxSlicer::isDone() {
@@ -83,8 +77,7 @@ void BoxSlicer::reset() {
 /**
  * DiagonalSlicer
  */
-mask ** DiagonalSlicer::nextSlice() {
-    mask **slice = new mask*[N];
+void DiagonalSlicer::nextSlice(mask ** slice) {
     if (selection == 0) {
         // top left to bottom right
         for (int i = 0; i < N; i++) {
@@ -98,7 +91,6 @@ mask ** DiagonalSlicer::nextSlice() {
         }
     }
     ++selection;
-    return slice;
 }
 
 bool DiagonalSlicer::isDone() {

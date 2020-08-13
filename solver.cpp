@@ -101,16 +101,15 @@ bool BoardManager::isBoardLegal(mask *board) {
     slicer[0] = new HorizontalSlicer();
     slicer[1] = new VerticalSlicer();
     slicer[2] = new BoxSlicer();
-    mask **slice;
+    mask **slice = new mask*[N];
     for (int i = 0; i < slicerLength; i++) {
-        for (slice = slicer[i]->init(board);
+        for (slicer[i]->init(board, slice);
                 !slicer[i]->isDone();
-                slice = slicer[i]->nextSlice()) {
+                slicer[i]->nextSlice(slice)) {
             if (!isSliceLegal(slice)) {
                 delete [] slice;
                 return false;
             }
-            delete [] slice;
         }
     }
     delete [] slice;
@@ -126,16 +125,15 @@ bool BoardManager::isBoardSolved(mask *board) {
     slicer[0] = new HorizontalSlicer();
     slicer[1] = new VerticalSlicer();
     slicer[2] = new BoxSlicer();
-    mask **slice;
+    mask **slice = new mask*[N];
     for (int i = 0; i < slicerLength; i++) {
-        for (slice = slicer[i]->init(board);
+        for (slicer[i]->init(board, slice);
                 !slicer[i]->isDone();
-                slice = slicer[i]->nextSlice()) {
+                slicer[i]->nextSlice(slice)) {
             if (!isSliceSolved(slice)) {
                 delete [] slice;
                 return false;
             }
-            delete [] slice;
         }
     }
     delete [] slice;
@@ -181,13 +179,13 @@ SolverInterface::~SolverInterface() {
 
 void SliceSolverInterface::solveAllSlices(SlicerInterface *slicer,
         mask *board) {
-    mask **slice;
-    for (slice = slicer->init(board);
+    mask **slice = new mask*[N];
+    for (slicer->init(board, slice);
             !slicer->isDone();
-            slice = slicer->nextSlice()) {
+            slicer->nextSlice(slice)) {
         solveSlice(slice);
-        delete [] slice;
     }
+    delete [] slice;
 }
 
 
@@ -321,18 +319,18 @@ void OverlapSolver::solveBoard(mask *board) {
 
 void OverlapSolver::solveBoard(mask *board, SlicerInterface *origin,
         SlicerInterface *target) {
-    mask **sliceOrigin;
-    mask **sliceTarget;
-    for (sliceOrigin = origin->init(board),
-            sliceTarget = target->init(board);
+    mask **sliceOrigin = new mask*[N];
+    mask **sliceTarget = new mask*[N];
+    for (origin->init(board, sliceOrigin),
+            target->init(board, sliceTarget);
             !origin->isDone() && !target->isDone();
-            sliceOrigin = origin->nextSlice(),
-            sliceTarget = target->nextSlice()
+            origin->nextSlice(sliceOrigin),
+            target->nextSlice(sliceTarget)
             ) {
         solveSlice(sliceOrigin, sliceTarget);
-        delete [] sliceOrigin;
-        delete [] sliceTarget;
     }
+    delete [] sliceOrigin;
+    delete [] sliceTarget;
 }
 
 void OverlapSolver::eliminate(mask **slice, unsigned int valueToEliminate,

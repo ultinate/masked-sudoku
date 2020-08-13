@@ -67,7 +67,6 @@ class Parser {
         Parser(std::string inputString);
         ~Parser() {}
         int parse();
-        std::string getRaw() { return inputString; }
         mask * getBoard() { return unsolvedBoard; }
 };
 
