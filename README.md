@@ -6,6 +6,9 @@ I wanted a playground exercise to practice working with pointers
 and bit masks. Solving (all) sudokus also eliminates the need to actually
 solving them by hand.
 
+Disclaimer: Not very efficient, fast or well done. But at least it does the
+job of solving even "the world's most difficult sudoku" by Arto Inkala.
+
 
 ## Getting Started
 
@@ -29,6 +32,7 @@ Example input sudoku:
 ## Unit Tests
 
 Use `make test` to run unit tests.
+
 
 # Basis
 
@@ -58,4 +62,16 @@ A sudoku must follow these rules:
     continue with the other solvers until solved. If this gives a solved
     (and valid) board, we're done. Otherwise, revert the guess and guess
     differently.
+
+
+# Varia
+
+## TODO
+
+  - Speed up. According to a profiler, the most time consuming methods
+    when running against Arto Inkala's sudoku are
+    BoardManager::transposeSlice() and Parser::countBits().
+  - Solve TODO's in code.
+  - Use more decent unit test framework.
+  - Fix the small memory leak that exists somewhere.
 

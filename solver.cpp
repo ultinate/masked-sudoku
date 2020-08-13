@@ -349,10 +349,9 @@ void OverlapSolver::eliminate(mask **slice, unsigned int valueToEliminate,
  */
 
 GuessSolver::GuessSolver() {
-    // DEBUG
     solvers[0] = new EliminateSolver();
     solvers[1] = new DetermineSolver();
-    //solvers[2] = new OverlapSolver();
+    solvers[2] = new OverlapSolver();
 }
 GuessSolver::~GuessSolver() {
     for (int i = 0; i < solverLength; i++) {

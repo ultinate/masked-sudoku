@@ -221,7 +221,7 @@ class OverlapSolver : public SolverInterface {
 
 class GuessSolver {
     private:
-        static const int solverLength = 2;  // DEBUG
+        static const int solverLength = 3;
         SolverInterface *solvers[solverLength];
         static const int maxLoops = N * N * N;
         static const int infoLoops = 1;
