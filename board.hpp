@@ -12,9 +12,15 @@
  */
 class BoardManager {
     private:
-        static bool isSolvedDetail(mask **slice);
+        bool isSolvedDetail(mask **slice);
 
     public:
+        BoardManager();
+        ~BoardManager();
+
+        static const int slicerLength = 3;
+        SlicerInterface *slicers[3];
+
         /**
          * Transpose a slice
          *
@@ -22,7 +28,7 @@ class BoardManager {
          * Creates a new slice in a new memory location.
          * Users should delete result to avoid memory leaks.
          */
-        static mask ** transposeSlice(mask **slice);
+        mask ** transposeSlice(mask **slice);
 
         /**
          * (Shallow) Copy sliceFrom to sliceTo
@@ -30,7 +36,7 @@ class BoardManager {
          * Does not copy any values. Points the elements in sliceTo to
          * the same addresses as sliceFrom.
          */
-        static void copySlice(mask **sliceTo, mask **sliceFrom);
+        void copySlice(mask **sliceTo, mask **sliceFrom);
 
         /**
          * (Deep) Copy values in sliceFrom to sliceTo
@@ -38,26 +44,26 @@ class BoardManager {
          * Does not change any pointers. Assigns values that sliceFrom
          * points to to elements in sliceTo.
          */
-        static void deepCopySlice(mask **sliceTo, mask **sliceFrom);
+        void deepCopySlice(mask **sliceTo, mask **sliceFrom);
 
         /**
          * (Deep) Copy values in boardFrom to boardTo
          */
-        static void deepCopyBoard(mask *boardTo, mask *boardFrom);
+        void deepCopyBoard(mask *boardTo, mask *boardFrom);
 
         /**
          * Check whether two slices point to the same addresses
          *
          * This implies that the two slices also have the same values.
          */
-        static bool areSlicesEqual(mask **sliceLhs, mask **sliceRhs);
+        bool areSlicesEqual(mask **sliceLhs, mask **sliceRhs);
 
         /**
          * Check whether two slices have the same values
          *
          * Does not check whether the slices point to the same addresses.
          */
-        static bool areSliceValuesEqual(mask **sliceLhs, mask **sliceRhs);
+        bool areSliceValuesEqual(mask **sliceLhs, mask **sliceRhs);
 
         /**
          * Check whether a slice is legally solved.
@@ -65,7 +71,7 @@ class BoardManager {
          * This means that the slide has a number fixed for every
          * field and that no number is duplicated.
          */
-        static bool isSliceSolved(mask **slice);
+        bool isSliceSolved(mask **slice);
         
         /**
          * Checks whether a slice is legal
@@ -73,26 +79,26 @@ class BoardManager {
          * This means that the slice does not contain any duplicate numbers.
          * This method does not care if the slice is completely filled yet.
          */
-        static bool isSliceLegal(mask **slice);
+        bool isSliceLegal(mask **slice);
          
         /**
          * Check whether a board is solved correctly
          *
          * Just checks all slices for isSliceSolved().
          */
-        static bool isBoardSolved(mask *board);
+        bool isBoardSolved(mask *board);
 
         /**
          * Checks whether a board is legal
          *
          * Just checks all slices for isSliceLegal().
          */
-        static bool isBoardLegal(mask *board);
+        bool isBoardLegal(mask *board);
 
         /**
          * Returns true if a mask is contained in mask pointer list
          */
-        static bool isInsideList(mask *needle, mask **haystack,
+        bool isInsideList(mask *needle, mask **haystack,
                 unsigned int haystackLength);
 };
 

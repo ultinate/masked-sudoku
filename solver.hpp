@@ -14,13 +14,9 @@
  */
 class SolverInterface {
     public:
-        SolverInterface() {}
+        BoardManager *manager;
+        SolverInterface();
         ~SolverInterface();
-        /**
-         * Returns name of class
-         *
-         * Mostly used for debugging.
-         */
 
         /**
          * Tries to solve a board in-place.
@@ -124,7 +120,7 @@ class OverlapSolver : public SolverInterface {
  * revert the guess and guess differently.
  */
 
-class GuessSolver {
+class GuessSolver : public SolverInterface {
     private:
         static const int solverLength = 3;
         SolverInterface *solvers[solverLength];
@@ -136,6 +132,7 @@ class GuessSolver {
     public:
         GuessSolver();
         ~GuessSolver();
+        void solveBoard(mask*);
         bool solveBoard(mask*, bool);
         bool solveBoard(mask*, bool, int);
         void runSolvers(mask*);

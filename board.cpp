@@ -9,6 +9,18 @@
  * BoardManager
  */
 
+BoardManager::BoardManager() {
+    slicers[0] = new HorizontalSlicer();
+    slicers[1] = new VerticalSlicer();
+    slicers[2] = new BoxSlicer();
+}
+
+BoardManager::~BoardManager() {
+    for (int i = 0; i < slicerLength; i++) {
+        delete slicers[i];
+    }
+}
+
 mask ** BoardManager::transposeSlice(mask **slice) {
     mask *sliceT = new mask[N];
     for (int col = 0; col < N; col++) {
@@ -92,52 +104,35 @@ bool BoardManager::isSliceSolved(mask **slice) {
 }
 
 bool BoardManager::isBoardLegal(mask *board) {
-    // TODO: Contains duplicate code. Refactor.
-    int slicerLength = 3;
-    SlicerInterface *slicer[slicerLength];
-    slicer[0] = new HorizontalSlicer();
-    slicer[1] = new VerticalSlicer();
-    slicer[2] = new BoxSlicer();
     mask **slice = new mask*[N];
+    bool isLegal = true;
     for (int i = 0; i < slicerLength; i++) {
-        for (slicer[i]->init(board, slice);
-                !slicer[i]->isDone();
-                slicer[i]->nextSlice(slice)) {
+        for (slicers[i]->init(board, slice);
+                !slicers[i]->isDone();
+                slicers[i]->nextSlice(slice)) {
             if (!isSliceLegal(slice)) {
-                delete [] slice;
-                return false;
+                isLegal = false;
             }
         }
     }
     delete [] slice;
-    for (int i = 0; i < slicerLength; i++) {
-        delete slicer[i];
-    }
-    return true;
+    return isLegal;
 }
 
 bool BoardManager::isBoardSolved(mask *board) {
-    int slicerLength = 3;
-    SlicerInterface *slicer[slicerLength];
-    slicer[0] = new HorizontalSlicer();
-    slicer[1] = new VerticalSlicer();
-    slicer[2] = new BoxSlicer();
     mask **slice = new mask*[N];
+    bool isLegal = true;
     for (int i = 0; i < slicerLength; i++) {
-        for (slicer[i]->init(board, slice);
-                !slicer[i]->isDone();
-                slicer[i]->nextSlice(slice)) {
+        for (slicers[i]->init(board, slice);
+                !slicers[i]->isDone();
+                slicers[i]->nextSlice(slice)) {
             if (!isSliceSolved(slice)) {
-                delete [] slice;
-                return false;
+                isLegal = false;
             }
         }
     }
     delete [] slice;
-    for (int i = 0; i < slicerLength; i++) {
-        delete slicer[i];
-    }
-    return true;
+    return isLegal;
 }
 
 bool BoardManager::isInsideList(mask *needle, mask **haystack,

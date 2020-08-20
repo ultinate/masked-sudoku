@@ -12,6 +12,10 @@
  * SolverInterface
  */
 
+SolverInterface::SolverInterface() {
+    manager = new BoardManager();
+}
+
 // Empty Destructor to avoid `missing vtable` linker errors
 SolverInterface::~SolverInterface() {
 }
@@ -39,13 +43,13 @@ void SliceSolverInterface::solveAllSlices(SlicerInterface *slicer,
 
 void DetermineSolver::solveSlice(mask **slice) {
     // std::cout << "DetermineSolver before: " << Visualizer::printSlice(slice) << std::endl;
-    mask **sliceT = BoardManager::transposeSlice(slice);
+    mask **sliceT = manager->transposeSlice(slice);
     EliminateSolver es;
     es.solveSlice(sliceT);
-    mask **sliceAfter = BoardManager::transposeSlice(sliceT);
-    bool isEqual = BoardManager::areSliceValuesEqual(slice, sliceAfter);
+    mask **sliceAfter = manager->transposeSlice(sliceT);
+    bool isEqual = manager->areSliceValuesEqual(slice, sliceAfter);
     if (!isEqual) {
-        BoardManager::deepCopySlice(slice, sliceAfter);
+        manager->deepCopySlice(slice, sliceAfter);
     }
     delete [] sliceT;
     delete [] sliceAfter;
@@ -66,16 +70,8 @@ void EliminateSolver::solveSlice(mask **slice) {
 }
 
 void SliceSolverInterface::solveBoard(mask *board) {
-    int slicerLength = 3;
-    SlicerInterface *slicer[slicerLength];
-    slicer[0] = new HorizontalSlicer();
-    slicer[1] = new VerticalSlicer();
-    slicer[2] = new BoxSlicer();
-    for (int j = 0; j < slicerLength; j++) {
-        solveAllSlices(slicer[j], board);
-    }
-    for (int i = 0; i < slicerLength; i++) {
-        delete slicer[i];
+    for (int j = 0; j < manager->slicerLength; j++) {
+        solveAllSlices(this->manager->slicers[j], board);
     }
 }
 
@@ -117,7 +113,7 @@ int OverlapSolver::getListOfOverlaps(int candidate, mask **list,
     for (int i = 0; i < N; i++) {
         if (Parser::isBitSet(*sliceOrigin[i], candidate)) {
             // We have a possible location for _candiate_
-            if (BoardManager::isInsideList(sliceOrigin[i], sliceTarget, N)) {
+            if (manager->isInsideList(sliceOrigin[i], sliceTarget, N)) {
                 // We have an overlap of a possible location with _s2_
                 list[length] = sliceOrigin[i];
                 length++;
@@ -181,7 +177,7 @@ void OverlapSolver::eliminate(mask **slice, unsigned int valueToEliminate,
         mask **exceptMasks, unsigned int exceptMasksLength) {
     mask eliminateMask = Parser::getNotMask(valueToEliminate);
     for (int i = 0; i < N; i++) {
-        if (!BoardManager::isInsideList(slice[i], exceptMasks, exceptMasksLength)) {
+        if (!manager->isInsideList(slice[i], exceptMasks, exceptMasksLength)) {
             *slice[i] = *slice[i] & eliminateMask;
         }
     }
@@ -219,6 +215,11 @@ void GuessSolver::runSolvers(mask *board) {
 }
 
 /**
+ * For compatibility with base interface only
+ */
+void GuessSolver::solveBoard(mask *board) {}
+
+/**
  * Solve the board
  *
  * This method tries to apply all solvers, then guesses remaining
@@ -237,10 +238,10 @@ bool GuessSolver::solveBoard(mask *board, bool isVerbose) {
 bool GuessSolver::solveBoard(mask *board, bool isVerbose, int guessDepth) {
     runSolvers(board);
 
-    if (BoardManager::isBoardSolved(board)) {
+    if (manager->isBoardSolved(board)) {
         return true;
     }
-    if (!BoardManager::isBoardLegal(board)) {
+    if (!manager->isBoardLegal(board)) {
         return false;
     }
     if (guessDepth > maxGuessDepth) {
@@ -253,11 +254,11 @@ bool GuessSolver::solveBoard(mask *board, bool isVerbose, int guessDepth) {
                 if (Parser::isBitSet(board[guessPosition], guess)) {
                     // This is a legal guess. Let's apply it.
                     mask *guessBoard = new mask[N*N];
-                    BoardManager::deepCopyBoard(guessBoard, board);
+                    manager->deepCopyBoard(guessBoard, board);
                     guessBoard[guessPosition] = Parser::getMaskFromInt(guess);
                     if (solveBoard(guessBoard, isVerbose, guessDepth + 1)) {
                         // save guessed board
-                        BoardManager::deepCopyBoard(board, guessBoard);
+                        manager->deepCopyBoard(board, guessBoard);
                         delete [] guessBoard;
                         return true;
                     }
