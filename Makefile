@@ -4,7 +4,7 @@ CFLAGS = -Wall -g --coverage -p
 
 OUTFILE=sudoku
 OUTFILE_TEST=test/test_sudoku
-SRCS=parser.cpp slicer.cpp solver.cpp
+SRCS=parser.cpp slicer.cpp solver.cpp board.cpp
 OBJS=$(subst .cpp,.o,$(SRCS))
 TEST_SRCS=test/test_parser.hpp test/test_slicer.hpp test/test_solver.hpp
 
@@ -18,6 +18,8 @@ clean:
 	$(RM) *.o *.d
 	$(RM) test/*.o test/*.d
 	$(RM) *.gcno *.gcda
+
+board.o : board.cpp board.hpp
 
 parser.o : parser.cpp parser.hpp
 

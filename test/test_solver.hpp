@@ -1,5 +1,6 @@
 #include <bitset>
 #include "../sTest/test.h"
+#include "../board.hpp"
 #include "../parser.hpp"
 #include "../slicer.hpp"
 #include "../solver.hpp"
